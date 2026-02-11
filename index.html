@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>German Real Estate Analyzer</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Consistent Branding Header -->
+        <header class="app-header">
+            <div class="brand-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="margin-right: 8px;">
+                    <path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-9a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v9" />
+                </svg>
+                Investment Analysis
+            </div>
+
+            <nav class="header-tabs">
+                <button class="header-tab active" data-tab="dashboard">Dashboard</button>
+                <button class="header-tab" data-tab="comparison">Comparison</button>
+            </nav>
+
+            <div style="flex: 1;"></div>
+            <button id="btn-toggle-portfolio" class="btn-portfolio">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="margin-right: 8px;">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+                    <path d="M8 7h6" />
+                    <path d="M8 11h8" />
+                </svg>
+                Saved Searches
+            </button>
+        </header>
+
+        <div class="content-wrapper">
+            <!-- Input Sidebar -->
+            <aside class="sidebar">
+
+
+                <!-- Acquisition -->
+                <div class="input-section">
+                    <h3>Acquisition</h3>
+                    <div class="input-group-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label>Purchase Price (€)</label>
+                            <input type="number" data-model="purchasePrice" class="form-control" step="1000">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Size (m²)</label>
+                            <input type="number" data-model="sizeSqm" class="form-control" step="1">
+                        </div>
+                    </div>
+                    <!-- Split Costs -->
+                    <div class="input-group-row">
+                        <div class="form-group">
+                            <label>Tax (%)</label>
+                            <input type="number" data-model="transferTaxPercent" class="form-control" step="0.1"
+                                title="Grunderwerbsteuer">
+                        </div>
+                        <div class="form-group">
+                            <label>Notary (%)</label>
+                            <input type="number" data-model="notaryPercent" class="form-control" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Broker (%)</label>
+                            <input type="number" data-model="brokerPercent" class="form-control" step="0.01">
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Operating & Growth -->
+                <div class="input-section">
+                    <h3>Rent, Cost and Growth</h3>
+                    <div class="input-group-row">
+                        <div class="form-group" style="flex: 2;">
+                            <label>Monthly Cold Rent (€)</label>
+                            <input type="number" data-model="monthlyColdRent" class="form-control" step="10">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Vacancy (%)</label>
+                            <input type="number" data-model="vacancyRatePercent" class="form-control" step="0.1">
+                        </div>
+                    </div>
+                    <div class="input-group-row">
+                        <div class="form-group">
+                            <label>Resv (€/mo)</label>
+                            <input type="number" data-model="maintenanceReserveMonthly" class="form-control" step="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Maint. (€/mo)</label>
+                            <input type="number" data-model="operatingCostsMonthly" class="form-control" step="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Mgmt (€/mo)</label>
+                            <input type="number" data-model="mgmtCostsMonthly" class="form-control" step="1">
+                        </div>
+                    </div>
+                    <div class="input-group-row">
+                        <div class="form-group">
+                            <label>Cost Incr. (%)</label>
+                            <input type="number" data-model="costIncreasePercent" class="form-control" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Rent Incr. (%)</label>
+                            <input type="number" data-model="rentIncreasePercent" class="form-control" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Appr. (%)</label>
+                            <input type="number" data-model="propertyAppreciationPercent" class="form-control"
+                                step="0.1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-section">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0;">Financing</h3>
+                        <button id="btn-toggle-kfw" class="btn btn-secondary"
+                            style="padding: 2px 8px; font-size: 0.7rem; height: 24px; display: flex; align-items: center;">
+                            <span id="kfw-status-text">Add Secondary Loan</span>
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label>Loan Amount (%)</label>
+                        <input type="number" data-model="loanPercent" class="form-control" step="1">
+                    </div>
+                    <div class="input-group-row">
+                        <div class="form-group">
+                            <label>Rate (%)</label>
+                            <input type="number" data-model="interestRatePercent" class="form-control" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Repay (%)</label>
+                            <input type="number" data-model="repaymentRatePercent" class="form-control" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Horizon (Yrs)</label>
+                            <input type="number" data-model="holdingPeriodYears" class="form-control" step="1" max="50">
+                        </div>
+                    </div>
+
+                    <!-- Mixed Rate Display -->
+                    <div id="mixed-rate-display"
+                        style="display: none; margin-bottom: 12px; font-size: 0.85rem; color: var(--text-secondary); text-align: right;">
+                        Mixed Rate: <span style="color: var(--accent-primary); font-weight: 600;">--%</span>
+                    </div>
+
+                    <!-- KFW Integration -->
+                    <input type="checkbox" id="chk-kfw" data-model="useKfwLoan" style="display: none;">
+
+                    <div id="kfw-container"
+                        style="display: none; margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px solid var(--border);">
+                        <div class="form-group">
+                            <label>Secondary Loan Type</label>
+                            <select id="kfw-loan-type" data-model="kfwLoanType" class="form-control"
+                                style="font-weight: 600; color: var(--accent-primary);">
+                                <option value="261">KFW 261 (Renovation)</option>
+                                <option value="qng40">KFW QNG 40 (New Build)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Loan Amount (€)</label>
+                            <input type="number" data-model="kfwLoanAmount" class="form-control" step="1000">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                                <small style="color: var(--text-secondary); font-size: 0.7rem;">Reduces Bank Loan
+                                    portion.</small>
+                            </div>
+                        </div>
+
+                        <div class="input-group-row">
+                            <div class="form-group">
+                                <label>Rate (%)</label>
+                                <input type="number" data-model="kfwInterestRate" class="form-control" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label>Tilgung (%)</label>
+                                <input type="number" data-model="kfwRepaymentRate" class="form-control" step="0.1">
+                            </div>
+                        </div>
+
+                        <div class="input-group-row">
+                            <div class="form-group">
+                                <label>Grace (Yrs)</label>
+                                <input type="number" data-model="kfwGracePeriod" class="form-control" step="1"
+                                    title="Tilgungsfreie Anlaufjahre">
+                            </div>
+                            <div class="form-group">
+                                <label>Subsidy (%)</label>
+                                <input type="number" data-model="kfwTilgungszuschuss" class="form-control" step="0.1"
+                                    title="Tilgungszuschuss">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-section">
+                    <h3>Tax Environment</h3>
+                    <div class="form-group">
+                        <label>Tax Rate (%)</label>
+                        <input type="number" data-model="taxRatePercent" class="form-control" step="1">
+                    </div>
+                    <div class="input-group-row">
+                        <div class="form-group">
+                            <label>Building Share (%)</label>
+                            <input type="number" data-model="buildingSharePercent" class="form-control" step="1">
+                        </div>
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label>AfA Rate (%)</label>
+                                <div id="qng-badge"
+                                    style="display: none; font-size: 0.65rem; background: rgba(16, 185, 129, 0.2); color: var(--accent-primary); padding: 2px 6px; border-radius: 4px;">
+                                    QNG 40</div>
+                            </div>
+                            <input id="afa-rate-input" type="number" data-model="afaRatePercent" class="form-control"
+                                step="0.1">
+                        </div>
+                    </div>
+                    <div class="input-group-row">
+                        <div class="form-group">
+                            <label>Renovation (Yr 1)</label>
+                            <input type="number" data-model="renovationCost" class="form-control" step="1000">
+                        </div>
+                        <div class="form-group">
+                            <label>Furniture (10y)</label>
+                            <input type="number" data-model="furnitureCost" class="form-control" step="1000">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Action Button at the bottom -->
+                <div class="sidebar-action-container">
+                    <button id="btn-sidebar-save" class="btn btn-primary btn-block"
+                        style="width: 100%; padding: 8px; margin-top: 10px; font-size: 0.9rem;">
+                        Save Search
+                    </button>
+                    <button id="btn-reset-form" class="btn-text" style="width: 100%; margin-top: 8px;">
+                        Reset All Inputs
+                    </button>
+                </div>
+
+            </aside>
+
+            <!-- Main Dashboard -->
+            <main class="main-content">
+                <div class="tab-content-container">
+                    <!-- Dashboard Tab -->
+                    <div id="tab-dashboard" class="tab-pane active">
+                        <div class="dashboard-split"
+                            style="display: grid; grid-template-columns: 4fr 6fr; gap: 24px; margin-bottom: 24px; align-items: stretch;">
+                            <!-- Left: Metrics Column -->
+                            <div class="metrics-column">
+                                <div class="kpi-grid"
+                                    style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                                    <div class="kpi-card">
+                                        <div class="kpi-label">Acquisition</div>
+                                        <div class="kpi-value" style="font-size: 1.25rem;"><span
+                                                id="disp-total-invest">€0</span></div>
+                                        <div class="kpi-sub"
+                                            style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>Equity: <span id="disp-equity">€0</span></div>
+                                            <div style="opacity: 0.8;">Price/m²: <span id="disp-price-sqm">€0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-card">
+                                        <div class="kpi-label"><span class="tooltip-trigger"
+                                                data-tooltip="Rent needed to cover all costs (Ops + Bank).">Break-even
+                                                Rent</span>
+                                        </div>
+                                        <div class="kpi-value" id="disp-break-even">€0</div>
+                                        <div class="kpi-sub" style="display: flex; justify-content: space-between;">
+                                            <span>Actual: <span id="disp-rent">€0</span></span>
+                                            <span style="opacity: 0.8;"><span id="disp-rent-sqm">€0</span>/m²</span>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-card">
+                                        <div class="kpi-label"><span class="tooltip-trigger" data-tooltip="Return generated by the property before financing and taxes, based purely on operations.
+
+                                           < 3.5% → expensive / core
+                                           = 4–5% → fair
+                                           > 5%   → risk or upside">Net Yield</span></div>
+                                        <div class="kpi-value" style="font-size: 1.25rem;" id="disp-yield">0%</div>
+                                        <div class="kpi-sub"><span class="tooltip-trigger"
+                                                data-tooltip="Net Operating Income: Total monthly rent minus all operating expenses.">NOI</span>:
+                                            <span id="disp-noi">€0</span>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-card">
+                                        <div class="kpi-label"><span class="tooltip-trigger" data-tooltip="Cash Flow / Invested Equity.&#10;Answers: What is the annual return on my cash investment?
+
+                                            < 5% → low income
+                                            = 5–10% → balanced
+                                            > 10% → income-focused">Cash-on-Cash</span>
+                                        </div>
+                                        <div class="kpi-value" id="disp-coc">0%</div>
+                                        <div class="kpi-sub"><span class="tooltip-trigger"
+                                                data-tooltip="ROE (Return on Equity) = (Cash Flow + Principal Payment) / Initial Equity.&#10;Answers: What is my total annual return including equity build-up?">ROE</span>:
+                                            <span id="disp-roe">0%</span>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-card">
+                                        <div class="kpi-label">
+                                            <span class="tooltip-trigger"
+                                                data-tooltip="Internal Rate of Return (Annualized).&#10;Answers: What is the total annual return on my equity invested?">IRR
+                                                (Levered)</span>
+                                        </div>
+                                        <div class="kpi-value" id="disp-irr">0%</div>
+                                        <div class="kpi-sub"><span class="tooltip-trigger" data-tooltip=" Multiple on Invested Capital (MOIC) is a wealth creation metric and answers; How many euros you get back per euro invested?
+
+                                            < 1.5x → weak
+                                            = 2–3x → solid
+                                            > 4x   → strong (for buy-and-hold)">Factor</span>:
+                                            <span id="disp-moic">0x</span>
+                                        </div>
+                                    </div>
+                                    <div class="kpi-card">
+                                        <div class="kpi-label">
+                                            <span class="tooltip-trigger" data-tooltip="Debt Service Coverage Ratio (NOI / Debt) measures whether the property can service its debt from operations alone, without tax benefits or equity injections.
+
+                                            ≥ 1.20 → strong, bankable
+                                            = 1.00 → tight but survivable
+                                            < 1.00 → relies on tax or owner">DSCR (Year 1)</span>
+                                        </div>
+                                        <div class="kpi-value" id="disp-dscr">1.0</div>
+                                        <div class="kpi-sub">Target > 1.2</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Wealth Column -->
+                            <div class="wealth-column">
+                                <div class="wealth-section"
+                                    style="height: 100%; display: flex; flex-direction: column;">
+                                    <h3>Wealth Projection <span
+                                            style="font-weight: 400; font-size: 0.85em; color: var(--text-secondary);">(After
+                                            <span id="disp-years">10</span> Years)</span></h3>
+
+                                    <div class="wealth-row">
+                                        <span class="label">Property Market Value</span>
+                                        <span class="value" id="disp-exit-value">€0</span>
+                                    </div>
+                                    <div class="wealth-row">
+                                        <span class="label">Remaining Debt</span>
+                                        <span class="value" id="disp-exit-debt">€0</span>
+                                    </div>
+                                    <div class="wealth-row wealth-highlight">
+                                        <span class="label"><span class="tooltip-trigger"
+                                                data-tooltip="Value - Debt.&#10;Answers: How much equity have I built from appreciation and loan paydown?">Wealth
+                                                Accumulation (Steuerfrei)</span>
+                                        </span>
+                                        <span class="value" id="disp-wealth-accum">€0</span>
+                                    </div>
+                                    <div class="wealth-row">
+                                        <span class="label"><span class="tooltip-trigger"
+                                                data-tooltip="Tax saved due to negative taxable income.&#10;Answers: How much wage tax did I save?">Tax
+                                                Savings (Accumulated)</span>
+                                        </span>
+                                        <span id="disp-tax-saved" style="font-weight: 600;">€0</span>
+                                    </div>
+                                    <div class="wealth-row-spacer"></div>
+                                    <div class="wealth-row"
+                                        style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px;">
+                                        <span class="label" style="font-weight: 700;">TOTAL ECONOMIC BENEFIT</span>
+                                        <span class="value" id="disp-total-benefit"
+                                            style="font-size: 1.5rem; color: var(--accent-primary);">€0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Full Width Timeline -->
+                        <div class="table-container">
+                            <div class="table-header">
+                                <h3 style="margin: 0;">Cash Flow Timeline</h3>
+                                <div class="toggle-container">
+                                    <button id="btn-yearly" class="toggle-btn">Yearly</button>
+                                    <button id="btn-monthly" class="toggle-btn active">Monthly</button>
+                                </div>
+                            </div>
+                            <div class="table-scroll-view">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Year</th>
+                                            <th class="text-right">Rental (in)</th>
+                                            <th class="text-right">Ops. (out)</th>
+                                            <th class="text-right">Interest (out)</th>
+                                            <th class="text-right">Repay. (out)</th>
+                                            <th class="text-right">Pre-Tax CF</th>
+                                            <th class="text-right">Tax Refund</th>
+                                            <th class="text-right">Post-Tax CF</th>
+                                            <th class="text-right">Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="timeline-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Tab -->
+                    <div id="tab-comparison" class="tab-pane">
+                        <div id="comparison-view" class="comparison-view">
+                            <div class="section-header"
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                                <h2 style="margin: 0;">⚖️ Side-by-Side Comparison</h2>
+                                <button id="btn-close-comparison" class="btn btn-secondary"
+                                    style="background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--border);">Clear
+                                    Selection</button>
+                            </div>
+                            <div id="comparison-empty-state"
+                                style="text-align: center; padding: 60px 20px; background: rgba(255,255,255,0.02); border: 1px dashed var(--border); border-radius: var(--radius-lg);">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5" style="margin-bottom: 16px; opacity: 0.5;">
+                                    <path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z" />
+                                    <path d="M17 21v-8a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v8" />
+                                    <path d="M7 3v3a1 1 0 0 0 1 1h7" />
+                                    <path d="M14 3v4" />
+                                </svg>
+                                <h3>No properties selected for comparison</h3>
+                                <p>Check the "Compare" box on properties in the saved searches to add them here.</p>
+                            </div>
+                            <div class="comparison-container" style="overflow-x: auto;">
+                                <table class="comparison-table">
+                                    <thead id="comparison-head"></thead>
+                                    <tbody id="comparison-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Portfolio Drawer -->
+    <div id="portfolio-overlay" class="drawer-overlay"></div>
+    <aside id="portfolio-drawer" class="portfolio-drawer">
+        <div class="drawer-header">
+            <h3>History</h3>
+            <button id="btn-close-portfolio" class="btn-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="drawer-body">
+            <div class="drawer-actions">
+                <button id="btn-update-scenario" class="btn btn-warning" style="display: none; flex: 1;">Update
+                    Selected</button>
+            </div>
+
+            <div id="scenario-list" class="scenario-list">
+                <!-- Scenarios will be injected here -->
+                <div class="text-muted" style="text-align: center; padding: 40px 20px;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                        style="margin-bottom: 12px; opacity: 0.5;">
+                        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+                    </svg>
+                    <p>Your saved properties will appear here.</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Scripts -->
+    <!-- Scenario Details Modal -->
+    <div id="modal-scenario-details" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Save Scenario</h2>
+                <button id="btn-close-modal" class="btn-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Scenario Name</label>
+                    <input type="text" id="input-scenario-name" class="form-control"
+                        placeholder="e.g. Modern Apartment Berlin">
+                </div>
+
+                <h3
+                    style="margin-top: 20px; font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.05em;">
+                    Property Details (Advisor)</h3>
+
+                <div class="form-group">
+                    <label>Location Quality</label>
+                    <div class="select-wrapper">
+                        <select id="modal-locationType" class="form-control">
+                            <option value="1">C-Location (Low Growth / Rural)</option>
+                            <option value="2">C+ Location (Developing)</option>
+                            <option value="3">B-Location (Standard City/Suburbs)</option>
+                            <option value="4">B+ Location (University City)</option>
+                            <option value="5">A-Location (Top Metro / High Demand)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Condition</label>
+                    <div class="select-wrapper">
+                        <select id="modal-conditionType" class="form-control">
+                            <option value="1">Need Full Renovation (Fixer-Upper)</option>
+                            <option value="2">Needs Work</option>
+                            <option value="3">Standard / Well Maintained</option>
+                            <option value="4">Modernized / Recent</option>
+                            <option value="5">New Construction / Top Level</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Market Pricing</label>
+                    <div class="select-wrapper">
+                        <select id="modal-marketPricing" class="form-control">
+                            <option value="under">Under Priced (Below Market)</option>
+                            <option value="fair" selected>Fair Priced (Market Rate)</option>
+                            <option value="over">Over Priced (Above Market)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-cancel-modal" class="btn btn-secondary">Cancel</button>
+                <button id="btn-confirm-save" class="btn btn-primary">Confirm & Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="assets/js/app.js"></script>
+</body>
+
+</html>
