@@ -303,6 +303,17 @@
                                         </div>
                                     </div>
                                     <div class="kpi-card">
+                                        <div class="kpi-label">
+                                            <span class="tooltip-trigger" data-tooltip="Debt Service Coverage Ratio (NOI / Debt) measures whether the property can service its debt from operations alone, without tax benefits or equity injections.
+
+                                            ≥ 1.20 → strong, bankable
+                                            = 1.00 → tight but survivable
+                                            < 1.00 → relies on tax or owner">DSCR (Year 1)</span>
+                                        </div>
+                                        <div class="kpi-value" id="disp-dscr">1.0</div>
+                                        <div class="kpi-sub">Target > 1.2</div>
+                                    </div>
+                                    <div class="kpi-card">
                                         <div class="kpi-label"><span class="tooltip-trigger" data-tooltip="Cash Flow / Invested Equity.&#10;Answers: What is the annual return on my cash investment?
 
                                             < 5% → low income
@@ -330,17 +341,6 @@
                                             <span id="disp-moic">0x</span>
                                         </div>
                                     </div>
-                                    <div class="kpi-card">
-                                        <div class="kpi-label">
-                                            <span class="tooltip-trigger" data-tooltip="Debt Service Coverage Ratio (NOI / Debt) measures whether the property can service its debt from operations alone, without tax benefits or equity injections.
-
-                                            ≥ 1.20 → strong, bankable
-                                            = 1.00 → tight but survivable
-                                            < 1.00 → relies on tax or owner">DSCR (Year 1)</span>
-                                        </div>
-                                        <div class="kpi-value" id="disp-dscr">1.0</div>
-                                        <div class="kpi-sub">Target > 1.2</div>
-                                    </div>
                                 </div>
                             </div>
 
@@ -348,13 +348,18 @@
                             <div class="wealth-column">
                                 <div class="wealth-section"
                                     style="height: 100%; display: flex; flex-direction: column;">
-                                    <h3>Wealth Projection <span
-                                            style="font-weight: 400; font-size: 0.85em; color: var(--text-secondary);">(After
-                                            <span id="disp-years">10</span> Years)</span></h3>
+                                    <div class="section-header" style="margin-bottom: 24px;">
+                                    <h3 style="margin: 0;">Wealth Projection</h3>
+                                    <span style="font-weight: 400; font-size: 0.85em; color: var(--text-secondary);">(After
+                                        <span id="disp-years">10</span> Years)</span>
+                                </div>
 
                                     <div class="wealth-row">
                                         <span class="label">Property Market Value</span>
-                                        <span class="value" id="disp-exit-value">€0</span>
+                                        <div style="text-align: right;">
+                                            <span class="value" id="disp-exit-value">€0</span>
+                                            <div style="font-size: 0.8rem; color: var(--text-secondary);" id="disp-exit-price-sqm">€0/m²</div>
+                                        </div>
                                     </div>
                                     <div class="wealth-row">
                                         <span class="label">Remaining Debt</span>
@@ -372,7 +377,7 @@
                                                 data-tooltip="Tax saved due to negative taxable income.&#10;Answers: How much wage tax did I save?">Tax
                                                 Savings (Accumulated)</span>
                                         </span>
-                                        <span id="disp-tax-saved" style="font-weight: 600;">€0</span>
+                                        <span class="value" id="disp-tax-saved" style="font-weight: 600;">€0</span>
                                     </div>
                                     <div class="wealth-row-spacer"></div>
                                     <div class="wealth-row"

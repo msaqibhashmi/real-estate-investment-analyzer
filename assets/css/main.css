@@ -556,15 +556,6 @@ tr:hover td {
     margin-top: 0;
 }
 
-.wealth-section h3 {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-    letter-spacing: 0.05em;
-    margin-top: 0;
-    margin-bottom: 24px;
-}
-
 .wealth-row {
     display: flex;
     justify-content: space-between;
@@ -578,6 +569,12 @@ tr:hover td {
 .wealth-row .value {
     font-weight: 600;
     font-family: var(--font-heading);
+    font-size: 1.2rem;
+}
+
+.wealth-row .label {
+    color: var(--text-secondary);
+    font-weight: 600;
 }
 
 .wealth-row-spacer {
@@ -586,7 +583,7 @@ tr:hover td {
 
 .wealth-highlight .value {
     color: var(--accent-primary);
-    font-size: 1.1rem;
+    font-size: 1.3rem;
 }
 
 .input-group-row {

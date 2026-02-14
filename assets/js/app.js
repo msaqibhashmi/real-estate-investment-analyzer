@@ -144,9 +144,9 @@ function updateDashboard(data, metrics) {
     const elYield = document.getElementById('disp-yield');
     elYield.textContent = fmtPercent.format(yieldVal / 100);
 
-    // Yield Color Logic: >=5% Emerald, >=4% Amber, <4% Red
+    // Yield Color Logic: >=5% Emerald, >=3.5% Amber, <3.5% Red
     if (yieldVal >= 5) elYield.style.color = 'var(--success)';
-    else if (yieldVal >= 4) elYield.style.color = 'var(--warning)';
+    else if (yieldVal >= 3.5) elYield.style.color = 'var(--warning)';
     else elYield.style.color = 'var(--danger)';
 
     document.getElementById('disp-noi').textContent = fmtCurrency.format(metrics.operations.noi);
@@ -156,26 +156,44 @@ function updateDashboard(data, metrics) {
     const elCoc = document.getElementById('disp-coc');
     elCoc.textContent = fmtPercent.format(coc / 100);
 
-    // Target logic: > 10% is success, > 0% is warning, <= 0% is danger/neutral
-    if (coc >= 10) elCoc.style.color = 'var(--success)';
-    else if (coc > 0) elCoc.style.color = 'var(--warning)';
+    // Target logic: >= 8% is success, >= 3% is warning, < 3% is danger
+    if (coc >= 8) elCoc.style.color = 'var(--success)';
+    else if (coc >= 3) elCoc.style.color = 'var(--warning)';
     else elCoc.style.color = 'var(--danger)';
 
     const roe = metrics.returnMetrics.roeYear1;
-    document.getElementById('disp-roe').textContent = fmtPercent.format(roe / 100);
+    const elRoe = document.getElementById('disp-roe');
+    elRoe.textContent = fmtPercent.format(roe / 100);
+    if (roe >= 12) elRoe.style.color = 'var(--success)';
+    else if (roe >= 6) elRoe.style.color = 'var(--warning)';
+    else elRoe.style.color = 'var(--danger)';
 
     // IRR
     const irr = metrics.returnMetrics.irr;
     const elIrr = document.getElementById('disp-irr');
     elIrr.textContent = irr !== null ? fmtPercent.format(irr / 100) : 'N/A';
-    elIrr.className = `kpi-value ${irr > 0 ? 'positive' : 'neutral'}`;
+    if (irr === null) {
+        elIrr.style.color = 'var(--text-secondary)';
+    } else if (irr >= 10) {
+        elIrr.style.color = 'var(--success)';
+    } else if (irr >= 5) {
+        elIrr.style.color = 'var(--warning)';
+    } else {
+        elIrr.style.color = 'var(--danger)';
+    }
 
-    document.getElementById('disp-moic').textContent = metrics.returnMetrics.equityMultiple.toFixed(2) + 'x';
+    const moic = metrics.returnMetrics.equityMultiple;
+    const elMoic = document.getElementById('disp-moic');
+    elMoic.textContent = moic.toFixed(2) + 'x';
+    if (moic >= 2.5) elMoic.style.color = 'var(--success)';
+    else if (moic >= 1.8) elMoic.style.color = 'var(--warning)';
+    else elMoic.style.color = 'var(--danger)';
 
     // 2. Wealth Accumulation (New Section)
     const w = metrics.wealth;
     document.getElementById('disp-years').textContent = w.years;
     document.getElementById('disp-exit-value').textContent = fmtCurrency.format(w.propertyValueExit);
+    document.getElementById('disp-exit-price-sqm').textContent = `${fmtCurrency.format(w.exitPricePerSqm)}/m²`;
     document.getElementById('disp-exit-debt').textContent = fmtCurrency.format(w.remainingDebtExit);
 
     document.getElementById('disp-wealth-accum').textContent = fmtCurrency.format(w.wealthAccumulation);
@@ -189,7 +207,12 @@ function updateDashboard(data, metrics) {
     // Financing
     setText('debt-service-val', fmtCurrency.format(metrics.financing.annuity / 12));
     const dscr = metrics.financing.initialDscr;
-    setText('disp-dscr', dscr.toFixed(2));
+    if (isFinite(dscr)) {
+        setText('disp-dscr', dscr.toFixed(2));
+    } else {
+        setText('disp-dscr', 'N/A');
+    }
+
 
     // Mixed Rate Display
     const mixedRateEl = document.getElementById('mixed-rate-display');
@@ -205,10 +228,14 @@ function updateDashboard(data, metrics) {
     // 3. Risk (DSCR color logic moved here)
     const elDscr = document.getElementById('disp-dscr');
     if (elDscr) { // Ensure element exists before applying style
-        // Color logic
-        if (dscr < 1.0) elDscr.style.color = 'var(--danger)';
-        else if (dscr < 1.2) elDscr.style.color = 'var(--warning)';
-        else elDscr.style.color = 'var(--success)';
+        if (!isFinite(dscr)) {
+            elDscr.style.color = 'var(--text-secondary)';
+        } else {
+            // Color logic
+            if (dscr < 1.0) elDscr.style.color = 'var(--danger)';
+            else if (dscr < 1.2) elDscr.style.color = 'var(--warning)';
+            else elDscr.style.color = 'var(--success)';
+        }
     }
 
 

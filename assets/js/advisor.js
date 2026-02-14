@@ -14,9 +14,10 @@ export function analyzeProperty(data, metrics) {
     const totalInvestment = metrics.acquisition?.totalInvestment || 0;
 
     // Core KPIs
-    const yieldScore = Math.min(10, Math.max(0, (netYield - 2) * 2.5)); // 2% = 0, 6% = 10
-    const dscrScore = Math.min(10, Math.max(0, (initialDscr - 1.0) * 10)); // 1.0 = 0, 2.0 = 10
-    const cocScore = Math.min(10, Math.max(0, (cashOnCashYear1 - 0) * 1)); // 0% = 0, 10% = 10
+    const yieldScore = Math.min(10, Math.max(0, (netYield - 1.5) * 2)); // 1.5% = 0, 6.5% = 10
+    const dscrScore = !isFinite(initialDscr) ? 10 : Math.min(10, Math.max(0, (initialDscr - 1.0) * 10)); // 1.0 = 0, 2.0 = 10
+    const cocScore = Math.min(10, Math.max(0, cashOnCashYear1 * 1.25)); // 0% = 0, 8% = 10
+    const irrScore = Math.min(10, Math.max(0, (irr - 2) * 1.25)); // 2% = 0, 10% = 10
 
 
     // Qualitative Scores
@@ -34,8 +35,8 @@ export function analyzeProperty(data, metrics) {
         pricingBonus = -5; // Penalty for overpriced deals
     }
 
-    // Weighted Total (0-100) - now includes pricing
-    const financialTotal = (yieldScore * 0.4 + dscrScore * 0.4 + cocScore * 0.2);
+    // Weighted Total (0-100) - now includes pricing and IRR
+    const financialTotal = (yieldScore * 0.25 + dscrScore * 0.3 + cocScore * 0.2 + irrScore * 0.25);
     const qualityTotal = (locationScore * 0.5 + conditionScore * 0.3 + pricingScore * 0.2);
     const baseScore = Math.round((financialTotal * 5 + qualityTotal * 5));
     const finalScore = Math.min(100, Math.max(0, baseScore + pricingBonus));
@@ -60,19 +61,37 @@ export function analyzeProperty(data, metrics) {
     }
 
     // Yield analysis
-    if (netYield >= 6) {
-        insights.push("Strong cash flow potential");
-    } else if (netYield >= 4) {
-        insights.push("Moderate income generation");
-    } else if (netYield < 3) {
-        insights.push("Low yield - appreciation play");
+    if (netYield >= 5) {
+        insights.push("✅ Excellent net yield (>5%)");
+    } else if (netYield >= 3.5) {
+        insights.push("👍 Solid net yield (3.5-5%)");
+    } else {
+        insights.push("⚠️ Low yield (<3.5%), relies on appreciation");
     }
 
-    // Risk assessment
-    if (initialDscr < 1.05) {
-        insights.push("⚠️ Tight debt coverage");
-    } else if (initialDscr >= 1.3) {
-        insights.push("✓ Strong debt coverage");
+    // CoC analysis
+    if (cashOnCashYear1 >= 8) {
+        insights.push("✅ Strong positive cash flow (>8%)");
+    } else if (cashOnCashYear1 >= 3) {
+        insights.push("👍 Moderate positive cash flow (3-8%)");
+    } else {
+        insights.push("⚠️ Low or negative cash flow (<3%)");
+    }
+
+    // Risk assessment (DSCR)
+    if (initialDscr < 1.1) {
+        insights.push("❌ Tight debt coverage (<1.1)");
+    } else if (initialDscr >= 1.25) {
+        insights.push("✅ Strong debt coverage (>1.25)");
+    }
+
+    // IRR Analysis
+    if (irr >= 10) {
+        insights.push("✅ Excellent long-term return potential (>10% IRR)");
+    } else if (irr >= 5) {
+        insights.push("👍 Solid long-term return potential (5-10% IRR)");
+    } else {
+        insights.push("⚠️ Weak long-term return potential (<5% IRR)");
     }
 
     // Location insights

@@ -44,8 +44,8 @@ const INITIAL_STATE = {
 
 
     // Tax
-    afaRatePercent: 2.5, // New residential standard
-    taxRatePercent: 38,
+    afaRatePercent: 2, // New residential standard
+    taxRatePercent: 42,
     holdingPeriodYears: 10,
     capitalGainsTaxRate: 0,
     renovationCost: 0,

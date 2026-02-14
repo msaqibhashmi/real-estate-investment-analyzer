@@ -4,6 +4,12 @@ export function calculateIRR(cashFlows, guess = 0.1) {
     const precision = 1e-7;
     let rate = guess;
 
+    // Check if all cash flows are close to zero
+    const totalCashFlow = cashFlows.reduce((sum, cf) => sum + Math.abs(cf), 0);
+    if (totalCashFlow < precision) {
+        return 0;
+    }
+
     for (let i = 0; i < maxIterations; i++) {
         let npv = 0;
         let dNpv = 0;
@@ -279,6 +285,7 @@ export function calculateMetrics(inputs) {
 
     // "Exiterlös" (Total Benefit) = Wealth Accumulation + Taxes Saved (over holding period)
     const totalEconomicExit = wealthAccumulation + cumulativeTaxSavings;
+    const exitPricePerSqm = sizeSqm > 0 ? projectedSalePrice / sizeSqm : 0;
 
     // --- 4. Return Metrics ---
     // IRR Stream
@@ -295,10 +302,13 @@ export function calculateMetrics(inputs) {
 
     // Year 1 Snapshots
     const y1 = timeline[0];
-    const netYield = (y1.noi / totalInvestment) * 100;
-    const cashOnCash = (y1.cfPostTax / equityNow) * 100; // After-tax (German market standard - includes tax benefits)
-    const roeYear1 = ((y1.cfPostTax + y1.principalPayment) / equityNow) * 100; // After-tax CF + equity buildup
-    const dscr = (y1.interestPayment + y1.principalPayment) > 0 ? y1.noi / (y1.interestPayment + y1.principalPayment) : 999;
+    const netYield = totalInvestment > 0 ? (y1.noi / totalInvestment) * 100 : 0;
+    const cashOnCash = equityNow > 0 ? (y1.cfPostTax / equityNow) * 100 : 0; // After-tax (German market standard - includes tax benefits)
+    const roeYear1 = equityNow > 0 ? ((y1.cfPostTax + y1.principalPayment) / equityNow) * 100 : 0; // After-tax CF + equity buildup
+    
+    const totalDebtServiceY1 = y1.interestPayment + y1.principalPayment;
+    const dscr = totalDebtServiceY1 > 0 ? y1.noi / totalDebtServiceY1 : (y1.noi > 0 ? Infinity : 0);
+
 
     const pricePerSqm = sizeSqm > 0 ? purchasePrice / sizeSqm : 0;
 
@@ -356,7 +366,8 @@ export function calculateMetrics(inputs) {
             kfwSubsidyAmount,   // Explicitly returned
             cumulativeTaxSavings,
             totalEconomicExit, // Wealth + Tax Saved
-            years: holdingPeriodYears
+            years: holdingPeriodYears,
+            exitPricePerSqm
         }
     };
 }
