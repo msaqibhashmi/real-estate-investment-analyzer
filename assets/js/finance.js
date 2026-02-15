@@ -234,6 +234,7 @@ export function calculateMetrics(inputs) {
         // Record Year
         timeline.push({
             year,
+            potentialRent,
             rentalIncome: effectiveGrossIncome,
             noi,
             opsCostVal,
@@ -354,8 +355,8 @@ export function calculateMetrics(inputs) {
         operations: {
             noi: y1.noi,
             netYield,
-            grossYield: totalInvestment > 0 ? (y1.rentalIncome / totalInvestment) * 100 : 0,
-            ger: purchasePrice > 0 ? (y1.rentalIncome / purchasePrice) * 100 : 0,
+            grossYield: purchasePrice > 0 ? (y1.potentialRent / purchasePrice) * 100 : 0,
+            ger: totalInvestment > 0 ? (y1.potentialRent / totalInvestment) * 100 : 0,
             expenseRatio: y1.rentalIncome > 0 ? (y1.opsCostVal / y1.rentalIncome) * 100 : 0
         },
         financing: {
