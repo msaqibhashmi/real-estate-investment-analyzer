@@ -31,7 +31,7 @@ In Germany, purchase costs (up to 12%+) are usually paid from equity.
 | **IRR (Levered)** | > 10% | Total return including the **tax-free sale after 10 years** (*Spekulationsfrist*). |
 
 ### 3. Tax Optimization (AfA)
-*   **Linear AfA:** 2% (pre-1925) or 3% (post-1925).
+*   **Linear AfA:** 2%, 2.5% or 3% based on build year.
 *   **Special AfA:** Toggle the **5% Special AfA** for new builds to significantly reduce your taxable income in the first 4 years.
 *   **Tax Savings:** The "Tax Savings" metric shows how much of your personal income tax is reduced by property depreciation and interest.
 
