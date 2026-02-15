@@ -92,7 +92,6 @@ export function calculateMetrics(inputs) {
 
     if (useKfwLoan) {
         kfwAmount = Number(kfwLoanAmount) || 0;
-        // Cap KFW amount at total requirement (simple logic, or allow over-leverage? usually capped)
         // For now, assume KFW replaces a part of the bank loan.
         if (kfwAmount > totalLoanAmount) kfwAmount = totalLoanAmount;
         bankLoanAmount = totalLoanAmount - kfwAmount;
@@ -115,14 +114,16 @@ export function calculateMetrics(inputs) {
     const purchaseCosts = purchasePrice * (purchaseCostsPercent / 100);
     const totalInvestment = purchasePrice + purchaseCosts + renovationCost + furnitureCost;
 
-    // Equity is Total Cost - (Bank Loan + KFW Loan Payout Amount).
-    // Note: KFW pays out 100% usually, acts as full loan, then subsidy reduces debt.
-    // So Equity = Invest - (Bank + KfwOriginal). The Subsidy is distinct wealth gain.
     const equityNow = totalInvestment - (bankLoanAmount + kfwAmount);
 
-    // AfA Base
-    const afaBaseValue = purchasePrice * (buildingSharePercent / 100);
-    // const annualDepreciation = afaBaseValue * (afaRatePercent / 100); // MOVED INSIDE LOOP
+    // --- GERMAN TAX: AfA Base Calculation ---
+    // In Germany, the AfA base is the building's share of the "Anschaffungskosten".
+    // Anschaffungskosten = Purchase Price + Acquisition Costs (Tax, Notary, Broker).
+    const buildingShareRatio = buildingSharePercent / 100;
+    const afaBaseValue = (purchasePrice + purchaseCosts) * buildingShareRatio;
+
+    // Furniture is depreciated separately (usually 10 years linear)
+    const furnitureBase = furnitureCost;
 
     // --- 2. Timeline Projection ---
     let timeline = [];
@@ -146,27 +147,20 @@ export function calculateMetrics(inputs) {
         const noi = effectiveGrossIncome - opsCostVal;
 
         // B. Debt Service (Split)
-        // B1. Bank Loan
-        // Annuity = Original * (Rate + Repay)
         const bankAnnuity = bankLoanAmount * ((interestRatePercent + repaymentRatePercent) / 100);
         const bankInterest = currentBankBalance * (interestRatePercent / 100);
         let bankPrincipal = bankAnnuity - bankInterest;
         if (bankPrincipal > currentBankBalance) bankPrincipal = currentBankBalance;
-        if (bankPrincipal < 0) bankPrincipal = 0; // Safety if stats are weird
+        if (bankPrincipal < 0) bankPrincipal = 0;
 
-        // B2. KFW Loan
         let kfwInterest = 0;
         let kfwPrincipal = 0;
         if (useKfwLoan && currentKfwBalance > 0) {
             kfwInterest = currentKfwBalance * (kfwInterestRate / 100);
 
-            // Check Grace Period (Tilgungsfreie Anlaufjahre)
             if (year <= kfwGracePeriod) {
                 kfwPrincipal = 0;
             } else {
-                // Standard Annuity after grace period base on ORIGINAL amount (usually) or Remaining?
-                // KFW usually fixes the annuity based on the loan amount.
-                // New logic: If we have a planned Repayment Rate, calculate annuity.
                 const kfwAnnuity = (kfwAmount - kfwSubsidyAmount) * ((kfwInterestRate + kfwRepaymentRate) / 100);
                 kfwPrincipal = kfwAnnuity - kfwInterest;
             }
@@ -180,16 +174,23 @@ export function calculateMetrics(inputs) {
 
         // C. Tax Calculation
 
-        // --- NEW DEPRECIATION LOGIC ---
+        // --- NEW DEPRECIATION LOGIC (Wachstumschancengesetz) ---
         let annualDepreciation = 0;
-        const specialAfa = useSpecialAfa && year <= 4 ? afaBaseValue * 0.05 : 0;
-        let baseAfa = 0;
+        let specialAfa = 0;
 
+        if (useSpecialAfa && year <= 4) {
+            // Section 7b EStG: 5% of eligible costs, capped at 5,000 EUR/sqm
+            const eligibleCostPerSqm = sizeSqm > 0 ? (afaBaseValue / sizeSqm) : 0;
+            const cappedCostPerSqm = Math.min(eligibleCostPerSqm, 5000);
+            const specialAfaBase = cappedCostPerSqm * sizeSqm;
+            specialAfa = specialAfaBase * 0.05;
+        }
+
+        let baseAfa = 0;
         if (isLinearAfa) {
-            // Linear depreciation based on the initial AfA base value
             baseAfa = afaBaseValue * (afaRatePercent / 100);
         } else {
-            // Degressive depreciation based on the current book value
+            // Degressive AfA (5%) is calculated on the remaining book value.
             baseAfa = currentBookValue * (afaRatePercent / 100);
         }
 
@@ -197,31 +198,38 @@ export function calculateMetrics(inputs) {
         // --- END NEW LOGIC ---
 
 
-        // Update Book Value for next year (or exit calc)
-        currentBookValue -= baseAfa; // Note: Sonder-AfA does not reduce the book value for the base AfA calculation
+        // Update Book Value for next year
+        // Special AfA reduces the book value for the following year's degressive calculation
+        currentBookValue -= (baseAfa + specialAfa); 
         if (currentBookValue < 0) currentBookValue = 0;
 
 
         // Furniture Depreciation (Linear 10y)
-        const furnitureDepreciation = (year <= 10 && furnitureCost > 0) ? (furnitureCost / 10) : 0;
+        const furnitureDepreciation = (year <= 10 && furnitureBase > 0) ? (furnitureBase / 10) : 0;
 
-        // Renovation Deduction (Year 1 Immediate Write-off)
+        // Renovation Deduction (Year 1 Immediate Write-off if not capitalized)
         const renovationDeduction = (year === 1 && renovationCost > 0) ? renovationCost : 0;
 
-        const taxableIncome = noi - totalInterest - annualDepreciation - furnitureDepreciation - renovationDeduction;
+        // --- GERMAN TAX ADJUSTMENTS ---
+        // 1. Maintenance Reserves (Instandhaltungsrücklage) are NOT tax deductible until spent.
+        // 2. Management Costs (Hausverwaltung) ARE deductible.
+        // 3. Non-recoverable operating costs ARE deductible.
+        // noi currently subtracts currentOpCosts, currentMgmtCosts, and currentMaint.
+        // We add back currentMaint because reserves are not deductible.
+        const taxableIncome = (noi + currentMaint) - totalInterest - annualDepreciation - furnitureDepreciation - renovationDeduction;
+        
         let taxPayable = 0;
         let taxSaved = 0;
 
         if (taxableIncome > 0) {
             taxPayable = taxableIncome * (taxRatePercent / 100);
         } else {
-            // Negative taxable income reduces tax on other PERSONAL income
             taxSaved = Math.abs(taxableIncome) * (taxRatePercent / 100);
         }
 
         // D. Cash Flows
         const cfPreTax = noi - actualDebtService;
-        const cfPostTax = cfPreTax - taxPayable + taxSaved; // Adding taxSaved as a "virtual inflow" or actual cash benefit if offset against wage tax
+        const cfPostTax = cfPreTax - taxPayable + taxSaved; 
 
         cumulativeCashFlow += cfPostTax;
         cumulativeTaxSavings += taxSaved;
@@ -258,21 +266,13 @@ export function calculateMetrics(inputs) {
 
     // --- 3. Exit Analysis ---
     const projectedSalePrice = purchasePrice * Math.pow(1 + (propertyAppreciationPercent / 100), holdingPeriodYears);
-    // Simplified selling costs
     const sellingCosts = 0;
 
     // Capital Gains Tax
     let exitTax = 0;
     if (holdingPeriodYears < 10 && capitalGainsTaxRate > 0) {
-        // Taxable Gain = Sale Price - Book Value
-        // Note: currentBookValue is the residual building value. Land value (purchasePrice - afaBaseValue) never depreciates?
-        // Actually: Book Value = (Land + Residual Building + Non-Depreciated Costs). 
-        // Simply: Original Cost - Accumulated Depreciation.
-        // But currentBookValue only tracks the Building part.
-
-        // Land Value Portion (assumed constant cost basis)
-        const landValue = purchasePrice - afaBaseValue;
-        const totalBookValue = landValue + currentBookValue + purchaseCosts; // Simplified cost basis
+        const landValue = (purchasePrice + purchaseCosts) * (1 - buildingShareRatio);
+        const totalBookValue = landValue + currentBookValue; 
 
         const gain = projectedSalePrice - sellingCosts - totalBookValue;
         if (gain > 0) exitTax = gain * (capitalGainsTaxRate / 100);
@@ -280,16 +280,12 @@ export function calculateMetrics(inputs) {
 
     const netExitProceeds = projectedSalePrice - sellingCosts - exitTax - currentTotalBalance;
 
-    // "Wealth Accumulation (Steuerfrei)"
-    // User image: Property Value - Remaining Debt.
     const wealthAccumulation = projectedSalePrice - currentTotalBalance;
 
-    // "Exiterlös" (Total Benefit) = Wealth Accumulation + Taxes Saved (over holding period)
     const totalEconomicExit = wealthAccumulation + cumulativeTaxSavings;
     const exitPricePerSqm = sizeSqm > 0 ? projectedSalePrice / sizeSqm : 0;
 
     // --- 4. Return Metrics ---
-    // IRR Stream
     const netCashAtExit = projectedSalePrice - sellingCosts - exitTax - currentTotalBalance;
 
     const irrStream = [-equityNow];
@@ -301,23 +297,18 @@ export function calculateMetrics(inputs) {
     const totalCashReturned = cumulativeCashFlow + netCashAtExit;
     const equityMultiple = equityNow > 0 ? totalCashReturned / equityNow : 0;
 
-    // Stabilized Metrics (Average over holding period to avoid Year 1 distortion from subsidies/renovations)
     const avgCashFlowPostTax = timeline.reduce((sum, t) => sum + t.cfPostTax, 0) / holdingPeriodYears;
     const avgPrincipalPayment = timeline.reduce((sum, t) => sum + t.principalPayment, 0) / holdingPeriodYears;
 
     const cashOnCashAvg = equityNow > 0 ? (avgCashFlowPostTax / equityNow) * 100 : 0;
     const roeAvg = equityNow > 0 ? ((avgCashFlowPostTax + avgPrincipalPayment) / equityNow) * 100 : 0;
 
-    // Year 1 Snapshots (for internal reference or specific displays)
     const y1 = timeline[0];
     const netYield = totalInvestment > 0 ? (y1.noi / totalInvestment) * 100 : 0;
     
-    // ROI (Total): (Total Net Profit / Total Cash Invested) * 100
     const totalNetProfit = totalEconomicExit - equityNow;
     const roiTotal = equityNow > 0 ? (totalNetProfit / equityNow) * 100 : 0;
 
-    // ROI (Annualized / CAGR): ((Total Wealth / Initial Equity) ^ (1/Years) - 1) * 100
-    // This provides a comparable annual rate of return over the holding period.
     const roiAnnualized = (equityNow > 0 && holdingPeriodYears > 0)
         ? (Math.pow(totalEconomicExit / equityNow, 1 / holdingPeriodYears) - 1) * 100
         : 0;
@@ -328,11 +319,6 @@ export function calculateMetrics(inputs) {
 
     const pricePerSqm = sizeSqm > 0 ? purchasePrice / sizeSqm : 0;
 
-    // Calc total initial annuity for DSCR reference / Break Even
-    // Bank Annuity
-    const bankAnnuity = bankLoanAmount * ((interestRatePercent + repaymentRatePercent) / 100);
-    // KFW Annuity (Assumed full payment or Interest only? For Break Even, we should assume the "Steady State" payment often, or just Year 1?)
-    // Safe to use Year 1 payment context for Break Even Rent.
     const year1DebtService = y1.interestPayment + y1.principalPayment;
 
     // Mixed Interest Rate Calculation
@@ -365,7 +351,7 @@ export function calculateMetrics(inputs) {
             loanAmountTotal: totalLoanAmount,
             loanAmountBank: bankLoanAmount,
             loanAmountKfw: useKfwLoan ? kfwAmount : 0,
-            mixedInterestRate: mixedInterestRate // New metric
+            mixedInterestRate: mixedInterestRate 
         },
         returnMetrics: {
             cashFlowPreTaxYear1: y1.cfPreTax,
@@ -374,7 +360,6 @@ export function calculateMetrics(inputs) {
             roeAvg: roeAvg,
             roiTotal: roiTotal,
             roiAnnualized: roiAnnualized,
-            // Break Even Rent = Monthly Operating Costs + Monthly Debt Service
             breakEvenRentMonthly: inputs.operatingCostsMonthly + inputs.mgmtCostsMonthly + inputs.maintenanceReserveMonthly + (year1DebtService / 12),
             equityMultiple,
             irr,
@@ -383,10 +368,10 @@ export function calculateMetrics(inputs) {
         wealth: {
             propertyValueExit: projectedSalePrice,
             remainingDebtExit: currentTotalBalance,
-            wealthAccumulation, // Value - Debt
-            kfwSubsidyAmount,   // Explicitly returned
+            wealthAccumulation, 
+            kfwSubsidyAmount,   
             cumulativeTaxSavings,
-            totalEconomicExit, // Wealth + Tax Saved
+            totalEconomicExit, 
             years: holdingPeriodYears,
             exitPricePerSqm
         }
