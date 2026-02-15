@@ -772,6 +772,10 @@ function renderTimeline(timelineData) {
             taxDisplay = `€0`;
         }
 
+        const subsidyDisplay = row.kfwSubsidy > 0
+            ? `<div style="font-size: 0.7rem; color: var(--accent-primary); font-weight: 600;">-${fmtCurrency.format(row.kfwSubsidy)}</div>`
+            : '';
+
         tr.innerHTML = `
             <td>${row.year}</td>
             <td class="text-right">${fmtCurrency.format(row.rentalIncome / divider)}</td>
@@ -783,7 +787,10 @@ function renderTimeline(timelineData) {
             <td class="text-right ${row.cfPostTax >= 0 ? 'text-success' : 'text-danger'}" style="font-weight: 600;">
                 ${fmtCurrency.format(row.cfPostTax / divider)}
             </td>
-            <td class="text-right">${fmtCurrency.format(row.loanBalance)}</td>
+            <td class="text-right">
+                ${fmtCurrency.format(row.loanBalance)}
+                ${subsidyDisplay}
+            </td>
         `;
         tbody.appendChild(tr);
     });

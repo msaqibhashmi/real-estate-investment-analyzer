@@ -105,7 +105,7 @@ export function calculateMetrics(inputs) {
 
     // Balances
     let currentBankBalance = bankLoanAmount;
-    let currentKfwBalance = kfwAmount - kfwSubsidyAmount; // Start with reduced balance if subsidy applies immediately
+    let currentKfwBalance = kfwAmount; // Start with full amount, subsidy is applied later
     let currentTotalBalance = currentBankBalance + currentKfwBalance;
 
 
@@ -161,7 +161,7 @@ export function calculateMetrics(inputs) {
             if (year <= kfwGracePeriod) {
                 kfwPrincipal = 0;
             } else {
-                const kfwAnnuity = (kfwAmount - kfwSubsidyAmount) * ((kfwInterestRate + kfwRepaymentRate) / 100);
+                const kfwAnnuity = kfwAmount * ((kfwInterestRate + kfwRepaymentRate) / 100);
                 kfwPrincipal = kfwAnnuity - kfwInterest;
             }
             if (kfwPrincipal > currentKfwBalance) kfwPrincipal = currentKfwBalance;
@@ -228,8 +228,16 @@ export function calculateMetrics(inputs) {
         }
 
         // D. Cash Flows
+        // KfW 261 Tilgungszuschuss is a "repayment subsidy" (Tilgungszuschuss).
+        // It reduces the loan balance but is NOT a cash inflow to the bank account.
+        let annualSubsidy = 0;
+        if (useKfwLoan && kfwLoanType === '261' && year === 1) {
+            annualSubsidy = kfwSubsidyAmount;
+            currentKfwBalance -= annualSubsidy; // Apply subsidy to balance (loan reduction)
+        }
+
         const cfPreTax = noi - actualDebtService;
-        const cfPostTax = cfPreTax - taxPayable + taxSaved; 
+        const cfPostTax = cfPreTax - taxPayable + taxSaved;
 
         cumulativeCashFlow += cfPostTax;
         cumulativeTaxSavings += taxSaved;
@@ -254,6 +262,7 @@ export function calculateMetrics(inputs) {
             taxSaved,
             cfPreTax,
             cfPostTax,
+            kfwSubsidy: annualSubsidy,
             loanBalance: currentTotalBalance
         });
 
