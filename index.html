@@ -317,20 +317,18 @@
                                         </div>
                                     </div>
                                     <div class="kpi-card">
-                                        <div class="kpi-label"><span class="tooltip-trigger" data-tooltip="Cash Flow / Invested Equity.&#10;Answers: What is the annual return on my cash investment?
-
-                                            < 5% → low income
-                                            = 5–10% → balanced
-                                            > 10% → income-focused">Cash-on-Cash</span>
+                                        <div class="kpi-label"><span class="tooltip-trigger" data-tooltip="Average Annual Cash Flow / Invested Equity.&#10;Answers: What is the stabilized annual return on my cash investment? (Averaged over holding period to remove Year 1 distortions).
+ 
+                                             < 5% → low income
+                                             = 5–10% → balanced
+                                             > 10% → income-focused">Cash-on-Cash (Avg)</span>
                                         </div>
                                         <div class="kpi-value" id="disp-coc">0%</div>
-                                        <div class="kpi-sub"><span class="tooltip-trigger"
-                                                data-tooltip="ROE (Return on Equity) = (Cash Flow + Principal Payment) / Initial Equity.&#10;Answers: What is my total annual return including equity build-up?
-
-                                            < 8% → low
-                                            = 8–12% → good
-                                            > 12% → excellent">ROE</span>:
-                                            <span id="disp-roe">0%</span>
+                                        <div class="kpi-sub" style="display: flex; justify-content: space-between; align-items: center;">
+                                            <span><span class="tooltip-trigger" data-tooltip="Annualized ROI (CAGR) = ((Total Wealth / Initial Equity) ^ (1/Years) - 1) * 100.&#10;Answers: What is the geometric average annual return on my cash?&#10;&#10;> 15% → strong&#10;8-15% → fair&#10;< 8% → weak">ROI (Ann.)</span>: <span id="disp-roi">0%</span></span>
+                                            <span><span class="tooltip-trigger"
+                                                data-tooltip="Average (Cash Flow + Principal Payment) / Initial Equity.&#10;Answers: What is my stabilized annual return including equity build-up? (Averaged over holding period). Used to decide whether to hold, sell, or refinance.&#10;&#10;< 8% → low&#10;= 8–12% → good&#10;> 12% → excellent">ROE (Avg)</span>:
+                                            <span id="disp-roe">0%</span></span>
                                         </div>
                                     </div>
                                     <div class="kpi-card">

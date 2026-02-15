@@ -233,8 +233,8 @@ function updateDashboard(data, metrics) {
         else elExpRatio.style.color = 'var(--danger)';
     }
 
-    // Cash-on-Cash (Primary)
-    const coc = metrics.returnMetrics.cashOnCashYear1;
+    // Cash-on-Cash (Primary - Average)
+    const coc = metrics.returnMetrics.cashOnCashAvg;
     const elCoc = document.getElementById('disp-coc');
     elCoc.textContent = fmtPercent.format(coc / 100);
 
@@ -243,12 +243,21 @@ function updateDashboard(data, metrics) {
     else if (coc >= 3) elCoc.style.color = 'var(--warning)';
     else elCoc.style.color = 'var(--danger)';
 
-    const roe = metrics.returnMetrics.roeYear1;
+    const roe = metrics.returnMetrics.roeAvg;
     const elRoe = document.getElementById('disp-roe');
     elRoe.textContent = fmtPercent.format(roe / 100);
     if (roe >= 12) elRoe.style.color = 'var(--success)';
     else if (roe >= 6) elRoe.style.color = 'var(--warning)';
     else elRoe.style.color = 'var(--danger)';
+
+    const roi = metrics.returnMetrics.roiAnnualized;
+    const elRoi = document.getElementById('disp-roi');
+    if (elRoi) {
+        elRoi.textContent = fmtPercent.format(roi / 100);
+        if (roi >= 15) elRoi.style.color = 'var(--success)';
+        else if (roi >= 8) elRoi.style.color = 'var(--warning)';
+        else elRoi.style.color = 'var(--danger)';
+    }
 
     // IRR
     const irr = metrics.returnMetrics.irr;
@@ -637,9 +646,11 @@ function renderComparison() {
             title: '📈 Return Metrics (Performance)',
             rows: [
                 { label: 'IRR (Long-Term)', key: 'irr', path: 'returnMetrics', type: 'percent', higherIsBetter: true },
-                { label: 'Cash-on-Cash (Annual)', key: 'cashOnCashYear1', path: 'returnMetrics', type: 'percent', higherIsBetter: true },
+                { label: 'Cash-on-Cash (Avg)', key: 'cashOnCashAvg', path: 'returnMetrics', type: 'percent', higherIsBetter: true },
+                { label: 'ROI (Annualized)', key: 'roiAnnualized', path: 'returnMetrics', type: 'percent', higherIsBetter: true },
+                { label: 'ROI (Total)', key: 'roiTotal', path: 'returnMetrics', type: 'percent', higherIsBetter: true },
                 { label: 'Equity Multiple', key: 'equityMultiple', path: 'returnMetrics', type: 'number', higherIsBetter: true },
-                { label: 'ROE Year 1', key: 'roeYear1', path: 'returnMetrics', type: 'percent', higherIsBetter: true }
+                { label: 'ROE (Avg)', key: 'roeAvg', path: 'returnMetrics', type: 'percent', higherIsBetter: true }
             ]
         },
         {

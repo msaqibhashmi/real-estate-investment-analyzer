@@ -300,12 +300,27 @@ export function calculateMetrics(inputs) {
     const totalCashReturned = cumulativeCashFlow + netCashAtExit;
     const equityMultiple = equityNow > 0 ? totalCashReturned / equityNow : 0;
 
-    // Year 1 Snapshots
+    // Stabilized Metrics (Average over holding period to avoid Year 1 distortion from subsidies/renovations)
+    const avgCashFlowPostTax = timeline.reduce((sum, t) => sum + t.cfPostTax, 0) / holdingPeriodYears;
+    const avgPrincipalPayment = timeline.reduce((sum, t) => sum + t.principalPayment, 0) / holdingPeriodYears;
+
+    const cashOnCashAvg = equityNow > 0 ? (avgCashFlowPostTax / equityNow) * 100 : 0;
+    const roeAvg = equityNow > 0 ? ((avgCashFlowPostTax + avgPrincipalPayment) / equityNow) * 100 : 0;
+
+    // Year 1 Snapshots (for internal reference or specific displays)
     const y1 = timeline[0];
     const netYield = totalInvestment > 0 ? (y1.noi / totalInvestment) * 100 : 0;
-    const cashOnCash = equityNow > 0 ? (y1.cfPostTax / equityNow) * 100 : 0; // After-tax (German market standard - includes tax benefits)
-    const roeYear1 = equityNow > 0 ? ((y1.cfPostTax + y1.principalPayment) / equityNow) * 100 : 0; // After-tax CF + equity buildup
     
+    // ROI (Total): (Total Net Profit / Total Cash Invested) * 100
+    const totalNetProfit = totalEconomicExit - equityNow;
+    const roiTotal = equityNow > 0 ? (totalNetProfit / equityNow) * 100 : 0;
+
+    // ROI (Annualized / CAGR): ((Total Wealth / Initial Equity) ^ (1/Years) - 1) * 100
+    // This provides a comparable annual rate of return over the holding period.
+    const roiAnnualized = (equityNow > 0 && holdingPeriodYears > 0)
+        ? (Math.pow(totalEconomicExit / equityNow, 1 / holdingPeriodYears) - 1) * 100
+        : 0;
+
     const totalDebtServiceY1 = y1.interestPayment + y1.principalPayment;
     const dscr = totalDebtServiceY1 > 0 ? y1.noi / totalDebtServiceY1 : (y1.noi > 0 ? Infinity : 0);
 
@@ -354,8 +369,10 @@ export function calculateMetrics(inputs) {
         returnMetrics: {
             cashFlowPreTaxYear1: y1.cfPreTax,
             cashFlowPostTaxYear1: y1.cfPostTax,
-            cashOnCashYear1: cashOnCash,
-            roeYear1: roeYear1,
+            cashOnCashAvg: cashOnCashAvg,
+            roeAvg: roeAvg,
+            roiTotal: roiTotal,
+            roiAnnualized: roiAnnualized,
             // Break Even Rent = Monthly Operating Costs + Monthly Debt Service
             breakEvenRentMonthly: inputs.operatingCostsMonthly + inputs.mgmtCostsMonthly + inputs.maintenanceReserveMonthly + (year1DebtService / 12),
             equityMultiple,
