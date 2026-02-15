@@ -8,7 +8,7 @@ const INITIAL_STATE = {
     // Acquisition
     purchasePrice: 0,
     transferTaxPercent: 6,  // Grunderwerbsteuer (varies by Bundesland)
-    notaryPercent: 2.0,    // Notar & Grundbuch
+    notaryPercent: 2,    // Notar & Grundbuch
     brokerPercent: 0,     // Makler
     sizeSqm: 0,          // Property Size
 
@@ -23,7 +23,7 @@ const INITIAL_STATE = {
     maintenanceReserveMonthly: 0,
 
     // Growth
-    rentIncreasePercent: 2.0,     // Annual rent dynamic
+    rentIncreasePercent: 2,     // Annual rent dynamic
     costIncreasePercent: 0,     // Annual cost dynamic
     propertyAppreciationPercent: 2, // Annual value growth
 
@@ -41,6 +41,7 @@ const INITIAL_STATE = {
     kfwRepaymentRate: 3.0, // Tilgung for KFW often effectively lower or customized
     kfwGracePeriod: 1,     // Tilgungsfreie Anlaufjahre (1-5)
     kfwTilgungszuschuss: 5.0, // Repayment Subsidy in %
+    qng40AfaType: 'degressive', // 'degressive', 'linear'
 
 
     // Tax
@@ -50,6 +51,10 @@ const INITIAL_STATE = {
     capitalGainsTaxRate: 0,
     renovationCost: 0,
     furnitureCost: 0,
+
+    // AfA Types
+    isLinearAfa: true,
+    useSpecialAfa: false,
 
     // Qualitative / Advisor
     locationType: 3, // 1: C-Location (Village), 3: B-Location (Suburbs), 5: A-Location (Top 7 City)
@@ -61,8 +66,6 @@ class Store {
     constructor() {
         this.data = { ...INITIAL_STATE };
         this.listeners = [];
-        this.scenarios = JSON.parse(localStorage.getItem('property_scenarios') || '[]');
-        this.comparisonIds = [];
         this.scenarios = JSON.parse(localStorage.getItem('property_scenarios') || '[]');
         this.comparisonIds = [];
         this.currentScenarioId = null;
@@ -81,9 +84,9 @@ class Store {
         return this.scenarios;
     }
 
-    update(key, value) {
+    update(key, value, silent = false) {
         // Only convert to number if it's a numeric string and not a predefined string field
-        const stringFields = ['marketPricing', 'kfwLoanType'];
+        const stringFields = ['marketPricing', 'kfwLoanType', 'qng40AfaType'];
         if (!stringFields.includes(key) && typeof value === 'string') {
             value = parseFloat(value) || 0;
         }
@@ -91,7 +94,9 @@ class Store {
         if (this.data[key] !== value) {
             this.data[key] = value;
             this.metrics = calculateMetrics(this.data);
-            this.notify();
+            if (!silent) {
+                this.notify();
+            }
         }
     }
 

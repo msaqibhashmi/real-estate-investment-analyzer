@@ -45,7 +45,17 @@ function bindInputs() {
             // UI Side Effect for KFW Toggle
             // Note: We moved the specific dropdown logic to a separate listener below to avoid race conditions
             if (key === 'useKfwLoan' || key === 'kfwLoanType') {
+                const state = store.get();
+                // If QNG 40 is selected, set defaults for AfA
+                if (state.useKfwLoan && state.kfwLoanType === 'qng40') {
+                    store.update('isLinearAfa', false, true); // Degressive
+                    store.update('useSpecialAfa', true, true); // 5% Special AfA
+                    store.update('afaRatePercent', 5.0, true); // Default degressive rate
+                }
                 updateKfwUI(store.get());
+                updateSpecialAfaUI(store.get());
+                updateAfaRateUI(store.get());
+                updateInputs(store.get());
             }
         });
     });
@@ -103,34 +113,88 @@ function updateKfwUI(state) {
     }
 
     // Type Specific Visibility
-    const subsidyGroup = document.getElementById('kfw-subsidy-group'); // This element might not exist in new HTML, check if we need to account for it or if it was removed
-    const qngBadge = document.getElementById('qng-badge');
-
-    // Note: In current HTML there is no specific ID for subsidy group anymore, it's just part of the flow.
-    // If we needed to hide subsidy input for QNG, we would need an ID for that input group.
-
-    // QNG Badge Logic
-    if (qngBadge) {
-        // Show badge ONLY if we are in KFW mode AND type is qng40
-        qngBadge.style.display = (show && type === 'qng40') ? 'block' : 'none';
+    const subsidyGroup = document.getElementById('kfw-subsidy-group');
+    if (subsidyGroup) {
+        subsidyGroup.style.display = (type === 'qng40') ? 'none' : 'block';
     }
 
-    // Auto-Validation / Hints (e.g. QNG implies 10% AfA)
-    // IMPORTANT: This must trigger if show is true and type is qng40
-    if (show && type === 'qng40') {
-        if (state.afaRatePercent !== 10) {
-            // Update state
-            store.update('afaRatePercent', 10);
+    // --- AfA Controls Visibility ---
+    const isQng40 = show && type === 'qng40';
+    const afaTypeContainer = document.getElementById('afa-type-toggle-container');
+    const specialAfaContainer = document.getElementById('special-afa-checkbox-container');
+    const afaInput = document.getElementById('afa-rate-input');
 
-            // FORCE UPDATE UI INPUT via ID
-            const afaInput = document.getElementById('afa-rate-input');
-            if (afaInput) {
-                afaInput.value = 10;
-                // Optional: visual flash
-                afaInput.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
-                setTimeout(() => afaInput.style.backgroundColor = '', 500);
-            }
+    if (afaTypeContainer && specialAfaContainer && afaInput) {
+        afaTypeContainer.style.display = isQng40 ? 'flex' : 'none';
+        specialAfaContainer.style.display = isQng40 ? 'flex' : 'none';
+        // afaInput.disabled = isQng40; // User wants input active in all modes
+    }
+}
+
+function updateSpecialAfaUI(state) {
+    const badge = document.getElementById('badge-special-afa');
+    const dot = badge?.querySelector('.badge-dot');
+    if (badge && dot) {
+        if (state.useSpecialAfa) {
+            badge.style.borderColor = 'var(--accent-primary)';
+            badge.style.color = 'var(--accent-primary)';
+            badge.style.background = 'rgba(16, 185, 129, 0.1)';
+            dot.style.background = 'var(--accent-primary)';
+        } else {
+            badge.style.borderColor = 'var(--border)';
+            badge.style.color = 'var(--text-secondary)';
+            badge.style.background = 'transparent';
+            dot.style.background = 'var(--border)';
         }
+    }
+}
+
+function bindSpecialAfaBadge() {
+    const badge = document.getElementById('badge-special-afa');
+    const chk = document.getElementById('chk-special-afa');
+    if (badge && chk) {
+        badge.addEventListener('click', () => {
+            const newState = !chk.checked;
+            chk.checked = newState;
+            store.update('useSpecialAfa', newState);
+            updateSpecialAfaUI(store.get());
+        });
+    }
+}
+
+function updateAfaRateUI(state) {
+    const isLinear = state.isLinearAfa;
+    const btnDeg = document.getElementById('btn-afa-yearly');
+    const btnLin = document.getElementById('btn-afa-monthly');
+    
+    if (btnDeg && btnLin) {
+        if (isLinear) {
+            btnLin.classList.add('active');
+            btnDeg.classList.remove('active');
+        } else {
+            btnDeg.classList.add('active');
+            btnLin.classList.remove('active');
+        }
+    }
+}
+
+
+function bindAfaControls() {
+    const btnDeg = document.getElementById('btn-afa-yearly');
+    const btnLin = document.getElementById('btn-afa-monthly');
+    const chkToggle = document.getElementById('afa-type-toggle');
+
+    if (btnDeg && btnLin && chkToggle) {
+        btnDeg.addEventListener('click', () => {
+            store.update('isLinearAfa', false);
+            store.update('afaRatePercent', 5.0);
+            updateAfaRateUI(store.get());
+        });
+        btnLin.addEventListener('click', () => {
+            store.update('isLinearAfa', true);
+            store.update('afaRatePercent', 3.0);
+            updateAfaRateUI(store.get());
+        });
     }
 }
 
@@ -714,13 +778,18 @@ function updateToggleUI() {
 // Init
 document.addEventListener('DOMContentLoaded', () => {
     bindInputs();
+    bindAfaControls();
+    bindSpecialAfaBadge();
     // Subscribe to changes
     store.subscribe((state, metrics) => {
+        updateSpecialAfaUI(state);
         updateDashboard(state, metrics);
         renderScenarios();
         renderComparison();
         renderTimeline(metrics.returnMetrics.timeline);
         updateInputs(state);
+        updateKfwUI(state);
+        updateAfaRateUI(state);
     });
 
     // Toggle Listeners

@@ -155,8 +155,7 @@
                     </div>
 
                     <!-- Mixed Rate Display -->
-                    <div id="mixed-rate-display"
-                        style="display: none; margin-bottom: 12px; font-size: 0.85rem; color: var(--text-secondary); text-align: right;">
+                    <div id="mixed-rate-display" style="margin-bottom: 12px; font-size: 0.85rem; color: var(--text-secondary); text-align: right;">
                         Mixed Rate: <span style="color: var(--accent-primary); font-weight: 600;">--%</span>
                     </div>
 
@@ -201,7 +200,7 @@
                                 <input type="number" data-model="kfwGracePeriod" class="form-control" step="1"
                                     title="Tilgungsfreie Anlaufjahre">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="kfw-subsidy-group">
                                 <label>Subsidy (%)</label>
                                 <input type="number" data-model="kfwTilgungszuschuss" class="form-control" step="0.1"
                                     title="Tilgungszuschuss">
@@ -221,15 +220,23 @@
                             <label>Building Share (%)</label>
                             <input type="number" data-model="buildingSharePercent" class="form-control" step="1">
                         </div>
-                        <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <label>AfA Rate (%)</label>
-                                <div id="qng-badge"
-                                    style="display: none; font-size: 0.65rem; background: rgba(16, 185, 129, 0.2); color: var(--accent-primary); padding: 2px 6px; border-radius: 4px;">
-                                    QNG 40</div>
+                        <div id="afa-controls" class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <label style="margin: 0;">AfA Rate (%)</label>
+                                <div id="afa-type-toggle-container" class="toggle-container" style="font-size: 0.7rem;">
+                                    <button id="btn-afa-yearly" class="toggle-btn active" style="padding: 2px 8px;">D</button>
+                                    <button id="btn-afa-monthly" class="toggle-btn" style="padding: 2px 8px;">L</button>
+                                    <input type="checkbox" id="afa-type-toggle" data-model="isLinearAfa" style="display: none;">
+                                </div>
                             </div>
-                            <input id="afa-rate-input" type="number" data-model="afaRatePercent" class="form-control"
-                                step="0.1">
+                            <input id="afa-rate-input" type="number" data-model="afaRatePercent" class="form-control" step="0.1">
+                            <div id="special-afa-checkbox-container" style="margin-top: 6px; display: flex; justify-content: flex-end;">
+                                <div id="badge-special-afa" class="afa-badge" style="cursor: pointer; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); color: var(--text-secondary); transition: all 0.2s ease; display: flex; align-items: center; gap: 4px;">
+                                    <span class="badge-dot" style="width: 6px; height: 6px; border-radius: 50%; background: var(--border);"></span>
+                                    5% Special AfA
+                                </div>
+                                <input type="checkbox" id="chk-special-afa" data-model="useSpecialAfa" style="display: none;">
+                            </div>
                         </div>
                     </div>
                     <div class="input-group-row">
@@ -263,7 +270,7 @@
                     <!-- Dashboard Tab -->
                     <div id="tab-dashboard" class="tab-pane active">
                         <div class="dashboard-split"
-                            style="display: grid; grid-template-columns: 4fr 6fr; gap: 24px; margin-bottom: 24px; align-items: stretch;">
+                            style="display: grid; grid-template-columns: 4fr 6fr; gap: 24px; align-items: stretch; margin-bottom: 0;">
                             <!-- Left: Metrics Column -->
                             <div class="metrics-column">
                                 <div class="kpi-grid"
@@ -322,14 +329,22 @@
                                         </div>
                                         <div class="kpi-value" id="disp-coc">0%</div>
                                         <div class="kpi-sub"><span class="tooltip-trigger"
-                                                data-tooltip="ROE (Return on Equity) = (Cash Flow + Principal Payment) / Initial Equity.&#10;Answers: What is my total annual return including equity build-up?">ROE</span>:
+                                                data-tooltip="ROE (Return on Equity) = (Cash Flow + Principal Payment) / Initial Equity.&#10;Answers: What is my total annual return including equity build-up?
+
+                                            < 8% → low
+                                            = 8–12% → good
+                                            > 12% → excellent">ROE</span>:
                                             <span id="disp-roe">0%</span>
                                         </div>
                                     </div>
                                     <div class="kpi-card">
                                         <div class="kpi-label">
                                             <span class="tooltip-trigger"
-                                                data-tooltip="Internal Rate of Return (Annualized).&#10;Answers: What is the total annual return on my equity invested?">IRR
+                                                data-tooltip="Internal Rate of Return (Annualized).&#10;Answers: What is the total annual return on my equity invested?
+
+                                           < 8% → weak
+                                           = 8–12% → solid
+                                           > 12%   → strong">IRR
                                                 (Levered)</span>
                                         </div>
                                         <div class="kpi-value" id="disp-irr">0%</div>
@@ -347,7 +362,7 @@
                             <!-- Right: Wealth Column -->
                             <div class="wealth-column">
                                 <div class="wealth-section"
-                                    style="height: 100%; display: flex; flex-direction: column;">
+                                    style="height: 100%; display: flex; flex-direction: column; margin: 0;">
                                     <div class="section-header" style="margin-bottom: 24px;">
                                     <h3 style="margin: 0;">Wealth Projection</h3>
                                     <span style="font-weight: 400; font-size: 0.85em; color: var(--text-secondary);">(After

@@ -76,7 +76,9 @@ export function calculateMetrics(inputs) {
         kfwInterestRate,
         kfwRepaymentRate,
         kfwGracePeriod,
-        kfwTilgungszuschuss
+        kfwTilgungszuschuss,
+        isLinearAfa,
+        useSpecialAfa
     } = inputs;
 
     // --- Loan Setup (Split Logic) ---
@@ -178,27 +180,25 @@ export function calculateMetrics(inputs) {
 
         // C. Tax Calculation
 
-        // Depreciation Logic (Linear vs QNG 40)
+        // --- NEW DEPRECIATION LOGIC ---
         let annualDepreciation = 0;
+        const specialAfa = useSpecialAfa && year <= 4 ? afaBaseValue * 0.05 : 0;
+        let baseAfa = 0;
 
-        if (useKfwLoan && kfwLoanType === 'qng40') {
-            // QNG 40: 5% Degressive + 5% Sonder-AfA
-            const degressiveAmount = currentBookValue * 0.05;
-            let specialAmount = 0;
-
-            // Sonder-AfA (§7b) is 5% of COST (up to limit, simplified here as Base) for 4 years
-            if (year <= 4) {
-                specialAmount = afaBaseValue * 0.05;
-            }
-
-            annualDepreciation = degressiveAmount + specialAmount;
+        if (isLinearAfa) {
+            // Linear depreciation based on the initial AfA base value
+            baseAfa = afaBaseValue * (afaRatePercent / 100);
         } else {
-            // Standard Linear AfA
-            annualDepreciation = afaBaseValue * (afaRatePercent / 100);
+            // Degressive depreciation based on the current book value
+            baseAfa = currentBookValue * (afaRatePercent / 100);
         }
 
+        annualDepreciation = baseAfa + specialAfa;
+        // --- END NEW LOGIC ---
+
+
         // Update Book Value for next year (or exit calc)
-        currentBookValue -= annualDepreciation;
+        currentBookValue -= baseAfa; // Note: Sonder-AfA does not reduce the book value for the base AfA calculation
         if (currentBookValue < 0) currentBookValue = 0;
 
 
@@ -320,7 +320,7 @@ export function calculateMetrics(inputs) {
     const year1DebtService = y1.interestPayment + y1.principalPayment;
 
     // Mixed Interest Rate Calculation
-    let mixedInterestRate = interestRatePercent;
+    let mixedInterestRate = 0;
     if (useKfwLoan && totalLoanAmount > 0) {
         const bankShare = bankLoanAmount / totalLoanAmount;
         const kfwShare = kfwAmount / totalLoanAmount;
