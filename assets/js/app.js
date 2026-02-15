@@ -295,6 +295,28 @@ function updateDashboard(data, metrics) {
         setText('disp-dscr', 'N/A');
     }
 
+    // GER Display & Color Logic
+    const ger = metrics.operations.ger;
+    const elGer = document.getElementById('disp-ger');
+    if (elGer) {
+        elGer.textContent = fmtPercent.format(ger / 100);
+        // Target: > 6% success, > 4% warning, else danger
+        if (ger >= 6) elGer.style.color = 'var(--success)';
+        else if (ger >= 4) elGer.style.color = 'var(--warning)';
+        else elGer.style.color = 'var(--danger)';
+    }
+
+    // 3. Risk (DSCR color logic)
+    const elDscr = document.getElementById('disp-dscr');
+    if (elDscr) {
+        if (!isFinite(dscr)) {
+            elDscr.style.color = 'var(--text-secondary)';
+        } else {
+            if (dscr < 1.0) elDscr.style.color = 'var(--danger)';
+            else if (dscr < 1.2) elDscr.style.color = 'var(--warning)';
+            else elDscr.style.color = 'var(--success)';
+        }
+    }
 
     // Mixed Rate Display
     const mixedRateEl = document.getElementById('mixed-rate-display');
@@ -304,19 +326,6 @@ function updateDashboard(data, metrics) {
             mixedRateEl.querySelector('span').textContent = metrics.financing.mixedInterestRate.toFixed(2) + '%';
         } else {
             mixedRateEl.style.display = 'none';
-        }
-    }
-
-    // 3. Risk (DSCR color logic moved here)
-    const elDscr = document.getElementById('disp-dscr');
-    if (elDscr) { // Ensure element exists before applying style
-        if (!isFinite(dscr)) {
-            elDscr.style.color = 'var(--text-secondary)';
-        } else {
-            // Color logic
-            if (dscr < 1.0) elDscr.style.color = 'var(--danger)';
-            else if (dscr < 1.2) elDscr.style.color = 'var(--warning)';
-            else elDscr.style.color = 'var(--success)';
         }
     }
 

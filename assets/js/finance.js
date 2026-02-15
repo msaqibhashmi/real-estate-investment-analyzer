@@ -340,6 +340,7 @@ export function calculateMetrics(inputs) {
             noi: y1.noi,
             netYield,
             grossYield: totalInvestment > 0 ? (y1.rentalIncome / totalInvestment) * 100 : 0,
+            ger: purchasePrice > 0 ? (y1.rentalIncome / purchasePrice) * 100 : 0,
             expenseRatio: y1.rentalIncome > 0 ? (y1.opsCostVal / y1.rentalIncome) * 100 : 0
         },
         financing: {
