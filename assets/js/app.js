@@ -287,15 +287,20 @@ function updateDashboard(data, metrics) {
     document.getElementById('disp-exit-price-sqm').textContent = `${fmtCurrency.format(w.exitPricePerSqm)}/m²`;
     document.getElementById('disp-exit-debt').textContent = fmtCurrency.format(w.remainingDebtExit);
 
-    document.getElementById('disp-wealth-accum').textContent = fmtCurrency.format(w.wealthAccumulation);
+    const wealthAccumEl = document.getElementById('disp-wealth-accum');
+    wealthAccumEl.textContent = fmtCurrency.format(w.wealthAccumulation);
+    wealthAccumEl.style.color = w.wealthAccumulation > 0 ? 'var(--success)' : (w.wealthAccumulation < 0 ? 'var(--danger)' : 'var(--text-secondary)');
+
     document.getElementById('disp-wealth-appreciation').textContent = fmtCurrency.format(w.appreciationTotal);
     document.getElementById('disp-wealth-repayment').textContent = fmtCurrency.format(w.repaymentTotal);
 
     const taxSavedEl = document.getElementById('disp-tax-saved');
     taxSavedEl.textContent = fmtCurrency.format(w.cumulativeTaxSavings);
-    taxSavedEl.style.color = w.cumulativeTaxSavings > 0 ? 'var(--success)' : 'var(--text-secondary)';
+    taxSavedEl.style.color = w.cumulativeTaxSavings > 0 ? 'var(--success)' : (w.cumulativeTaxSavings < 0 ? 'var(--danger)' : 'var(--text-secondary)');
 
-    document.getElementById('disp-total-benefit').textContent = fmtCurrency.format(w.totalEconomicExit);
+    const totalBenefitEl = document.getElementById('disp-total-benefit');
+    totalBenefitEl.textContent = fmtCurrency.format(w.totalEconomicExit);
+    totalBenefitEl.style.color = w.totalEconomicExit > 0 ? 'var(--success)' : (w.totalEconomicExit < 0 ? 'var(--danger)' : 'var(--text-secondary)');
 
     // Financing
     setText('debt-service-val', fmtCurrency.format(metrics.financing.annuity / 12));
