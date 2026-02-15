@@ -374,13 +374,6 @@
                                         <span class="label">Remaining Debt</span>
                                         <span class="value" id="disp-exit-debt">€0</span>
                                     </div>
-                                    <div class="wealth-row wealth-highlight">
-                                        <span class="label"><span class="tooltip-trigger"
-                                                data-tooltip="Value - Debt.&#10;Answers: How much equity have I built from appreciation and loan paydown?">Wealth
-                                                Accumulation (Steuerfrei)</span>
-                                        </span>
-                                        <span class="value" id="disp-wealth-accum">€0</span>
-                                    </div>
                                     <div class="wealth-row">
                                         <span class="label"><span class="tooltip-trigger"
                                                 data-tooltip="Tax saved due to negative taxable income.&#10;Answers: How much wage tax did I save?">Tax
@@ -388,9 +381,23 @@
                                         </span>
                                         <span class="value" id="disp-tax-saved" style="font-weight: 600;">€0</span>
                                     </div>
-                                    <div class="wealth-row-spacer"></div>
+                                    <div class="wealth-row wealth-highlight" style="border-bottom: none;">
+                                        <span class="label"><span class="tooltip-trigger"
+                                                data-tooltip="Value - Debt.&#10;Answers: How much equity have I built from appreciation and loan paydown?">Wealth
+                                                Accumulation (Steuerfrei)</span>
+                                        </span>
+                                        <span class="value" id="disp-wealth-accum">€0</span>
+                                    </div>
+                                    <div class="wealth-row" style="padding-left: 20px; border-bottom: none; margin-top: -8px; opacity: 0.85;">
+                                        <span class="label" style="font-size: 0.85rem;">↳ Appreciation</span>
+                                        <span class="value" id="disp-wealth-appreciation" style="font-size: 0.9rem; color: var(--text-secondary);">€0</span>
+                                    </div>
+                                    <div class="wealth-row" style="padding-left: 20px; border-bottom: none; margin-top: -12px; opacity: 0.85;">
+                                        <span class="label" style="font-size: 0.85rem;">↳ Repayment</span>
+                                        <span class="value" id="disp-wealth-repayment" style="font-size: 0.9rem; color: var(--text-secondary);">€0</span>
+                                    </div>
                                     <div class="wealth-row"
-                                        style="margin-top: 24px; padding-top: 20px; border-bottom: none;">
+                                        style="margin-top: auto; padding-top: 12px; border-bottom: none; padding-bottom: 4px;">
                                         <span class="label" style="font-weight: 700;">TOTAL ECONOMIC BENEFIT</span>
                                         <span class="value" id="disp-total-benefit"
                                             style="font-size: 1.5rem; color: var(--accent-primary);">€0</span>

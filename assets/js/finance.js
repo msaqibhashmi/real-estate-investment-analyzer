@@ -290,6 +290,8 @@ export function calculateMetrics(inputs) {
     const netExitProceeds = projectedSalePrice - sellingCosts - exitTax - currentTotalBalance;
 
     const wealthAccumulation = projectedSalePrice - currentTotalBalance;
+    const appreciationTotal = projectedSalePrice - purchasePrice;
+    const repaymentTotal = (bankLoanAmount + kfwAmount) - currentTotalBalance;
 
     const totalEconomicExit = wealthAccumulation + cumulativeTaxSavings;
     const exitPricePerSqm = sizeSqm > 0 ? projectedSalePrice / sizeSqm : 0;
@@ -377,10 +379,12 @@ export function calculateMetrics(inputs) {
         wealth: {
             propertyValueExit: projectedSalePrice,
             remainingDebtExit: currentTotalBalance,
-            wealthAccumulation, 
-            kfwSubsidyAmount,   
+            wealthAccumulation,
+            appreciationTotal,
+            repaymentTotal,
+            kfwSubsidyAmount,
             cumulativeTaxSavings,
-            totalEconomicExit, 
+            totalEconomicExit,
             years: holdingPeriodYears,
             exitPricePerSqm
         }

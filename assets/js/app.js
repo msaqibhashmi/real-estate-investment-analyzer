@@ -288,6 +288,8 @@ function updateDashboard(data, metrics) {
     document.getElementById('disp-exit-debt').textContent = fmtCurrency.format(w.remainingDebtExit);
 
     document.getElementById('disp-wealth-accum').textContent = fmtCurrency.format(w.wealthAccumulation);
+    document.getElementById('disp-wealth-appreciation').textContent = fmtCurrency.format(w.appreciationTotal);
+    document.getElementById('disp-wealth-repayment').textContent = fmtCurrency.format(w.repaymentTotal);
 
     const taxSavedEl = document.getElementById('disp-tax-saved');
     taxSavedEl.textContent = fmtCurrency.format(w.cumulativeTaxSavings);
