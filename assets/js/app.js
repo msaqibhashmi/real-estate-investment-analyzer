@@ -213,7 +213,25 @@ function updateDashboard(data, metrics) {
     else if (yieldVal >= 3.5) elYield.style.color = 'var(--warning)';
     else elYield.style.color = 'var(--danger)';
 
-    document.getElementById('disp-noi').textContent = fmtCurrency.format(metrics.operations.noi);
+    const elGross = document.getElementById('disp-gross-yield');
+    if (elGross) {
+        const grossVal = metrics.operations.grossYield;
+        elGross.textContent = fmtPercent.format(grossVal / 100);
+        // Target: > 6% success, > 4% warning, else danger
+        if (grossVal >= 6) elGross.style.color = 'var(--success)';
+        else if (grossVal >= 4) elGross.style.color = 'var(--warning)';
+        else elGross.style.color = 'var(--danger)';
+    }
+
+    const elExpRatio = document.getElementById('disp-expense-ratio');
+    if (elExpRatio) {
+        const expRatio = metrics.operations.expenseRatio;
+        elExpRatio.textContent = fmtPercent.format(expRatio / 100);
+        // Target: < 20% success, < 35% warning, else danger (lower is better)
+        if (expRatio <= 20) elExpRatio.style.color = 'var(--success)';
+        else if (expRatio <= 35) elExpRatio.style.color = 'var(--warning)';
+        else elExpRatio.style.color = 'var(--danger)';
+    }
 
     // Cash-on-Cash (Primary)
     const coc = metrics.returnMetrics.cashOnCashYear1;

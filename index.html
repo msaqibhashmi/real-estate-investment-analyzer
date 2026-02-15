@@ -280,9 +280,8 @@
                                         <div class="kpi-value"><span id="disp-total-invest">€0</span></div>
                                         <div class="kpi-sub"
                                             style="display: flex; justify-content: space-between; align-items: center;">
-                                            <div>Equity: <span id="disp-equity">€0</span></div>
-                                            <div style="opacity: 0.8;">Price/m²: <span id="disp-price-sqm">€0</span>
-                                            </div>
+                                            <span>Equity: <span id="disp-equity">€0</span></span>
+                                            <span style="opacity: 0.8;"><span id="disp-price-sqm">€0</span>/m²</span>
                                         </div>
                                     </div>
                                     <div class="kpi-card">
@@ -303,9 +302,9 @@
                                            = 4–5% → fair
                                            > 5%   → risk or upside">Net Yield</span></div>
                                         <div class="kpi-value" id="disp-yield">0%</div>
-                                        <div class="kpi-sub"><span class="tooltip-trigger"
-                                                data-tooltip="Net Operating Income: Total monthly rent minus all operating expenses.">NOI</span>:
-                                            <span id="disp-noi">€0</span>
+                                        <div class="kpi-sub" style="display: flex; justify-content: space-between;">
+                                            <span><span class="tooltip-trigger" data-tooltip="Gross Yield: Annual cold rent divided by total investment cost.&#10;&#10;> 6% → strong&#10;= 4-6% → fair&#10;< 4% → expensive">Gross</span>: <span id="disp-gross-yield">0%</span></span>
+                                            <span><span class="tooltip-trigger" data-tooltip="Expense Ratio: Percentage of gross rent consumed by non-recoverable operating costs.&#10;&#10;< 20% → efficient&#10;= 20-35% → standard&#10;> 35% → high costs">OER</span>: <span id="disp-expense-ratio">0%</span></span>
                                         </div>
                                     </div>
                                     <div class="kpi-card">
