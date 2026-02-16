@@ -578,7 +578,7 @@ tr:hover td {
 .wealth-row .value {
     font-weight: 600;
     font-family: var(--font-heading);
-    font-size: 1.2rem;
+    font-size: 1.3rem;
 }
 
 .wealth-row .label {
