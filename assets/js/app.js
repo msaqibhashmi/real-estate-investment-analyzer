@@ -286,6 +286,8 @@ function updateDashboard(data, metrics) {
     document.getElementById('disp-exit-value').textContent = fmtCurrency.format(w.propertyValueExit);
     document.getElementById('disp-exit-price-sqm').textContent = `${fmtCurrency.format(w.exitPricePerSqm)}/m²`;
     document.getElementById('disp-exit-debt').textContent = fmtCurrency.format(w.remainingDebtExit);
+    const exitLtv = w.propertyValueExit > 0 ? (w.remainingDebtExit / w.propertyValueExit) * 100 : 0;
+    document.getElementById('disp-exit-ltv').textContent = `${(exitLtv || 0).toFixed(1)}% LTV`;
 
     const wealthAccumEl = document.getElementById('disp-wealth-accum');
     wealthAccumEl.textContent = fmtCurrency.format(w.wealthAccumulation);
@@ -533,7 +535,7 @@ function renderComparison() {
         `).join('')}
     </tr>`;
 
-    // Initialize verdict HTML for winner recommendation and decision matrix
+// Initialize verdict HTML for winner recommendation and decision matrix
     let verdictHtml = '';
 
     // Add Winner Recommendation (if available)
@@ -797,6 +799,9 @@ function renderTimeline(timelineData) {
             <td class="text-right">
                 ${fmtCurrency.format(row.loanBalance)}
                 ${subsidyDisplay}
+            </td>
+            <td class="text-right">
+                ${(row.ltv || 0).toFixed(1)}%
             </td>
         `;
         tbody.appendChild(tr);

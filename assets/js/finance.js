@@ -285,7 +285,8 @@ export function calculateMetrics(inputs) {
             cfPreTax,
             cfPostTax,
             kfwSubsidy: annualSubsidy,
-            loanBalance: currentTotalBalance
+            loanBalance: currentTotalBalance,
+            ltv: (currentTotalBalance / (purchasePrice * Math.pow(1 + (propertyAppreciationPercent / 100), year))) * 100
         });
 
         // Apply Growth for Next Year

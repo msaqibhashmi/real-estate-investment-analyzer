@@ -569,7 +569,6 @@ tr:hover td {
     display: flex;
     justify-content: space-between;
     padding: 8px 0;
-    /* Reduced from 12px for elegance */
     border-bottom: 1px solid #334155;
     font-size: 0.95rem;
     align-items: center;
