@@ -88,7 +88,10 @@ class Store {
         // Only convert to number if it's a numeric string and not a predefined string field
         const stringFields = ['marketPricing', 'kfwLoanType', 'qng40AfaType'];
         if (!stringFields.includes(key) && typeof value === 'string') {
-            value = parseFloat(value) || 0;
+            // Handle checkboxes/booleans
+            if (value === 'true') value = true;
+            else if (value === 'false') value = false;
+            else value = parseFloat(value) || 0;
         }
 
         if (this.data[key] !== value) {
