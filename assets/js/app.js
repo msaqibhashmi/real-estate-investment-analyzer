@@ -414,11 +414,14 @@ function renderScenarios() {
         return;
     }
 
-    list.innerHTML = scenarios.map(s => `
-        <div class="scenario-item ${comparisonIds.includes(s.id) ? 'active' : ''}" 
-             style="${s.id === currentId ? 'border-left: 3px solid var(--warning);' : ''}"
-             draggable="true"
+    list.innerHTML = scenarios.map(s => {
+        const isConfirming = window.confirmingDeleteId === s.id;
+        return `
+        <div class="scenario-item ${comparisonIds.includes(s.id) ? 'active' : ''}"
+             style="${s.id === currentId ? 'border-left: 3px solid var(--warning);' : ''}; cursor: pointer; ${isConfirming ? 'background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger);' : ''}"
+             draggable="${!isConfirming}"
              data-id="${s.id}"
+             onclick="${isConfirming ? '' : `window.loadScenario('${s.id}')`}"
              ondragstart="window.dragStart(event)"
              ondragover="window.dragOver(event)"
              ondrop="window.drop(event)"
@@ -426,26 +429,37 @@ function renderScenarios() {
              ondragleave="window.dragLeave(event)">
             <div class="scenario-info">
                 <div class="scenario-name" style="font-weight: ${s.id === currentId ? '700' : '400'}">
-                    <span style="cursor: move; margin-right: 6px; color: var(--text-secondary);">⋮⋮</span>
-                    ${s.name} ${s.id === currentId ? '<span style="font-size:0.7em; color:var(--warning);">(Active)</span>' : ''}
+                    ${isConfirming ?
+                        `<span style="color: var(--danger); font-weight: 700;">Delete this search?</span>` :
+                        `<span style="cursor: move; margin-right: 6px; color: var(--text-secondary);" onclick="event.stopPropagation()">⋮⋮</span>${s.name}`
+                    }
+                    ${s.id === currentId && !isConfirming ? '<span style="font-size:0.7em; color:var(--warning);">(Active)</span>' : ''}
                 </div>
                 <div style="display: flex; gap: 4px;">
-                     <button class="btn btn-secondary" style="padding: 4px; line-height: 0; background-color: transparent; color: var(--text-primary); border: 1px solid var(--border);" onclick="window.loadScenario('${s.id}')" title="Edit">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                     </button>
-                     <button class="btn btn-danger" style="padding: 4px; line-height: 0;" onclick="window.deleteScenario('${s.id}')" title="Delete">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                     </button>
+                     ${isConfirming ? `
+                        <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.7rem; font-weight: 700;" onclick="event.stopPropagation(); window.confirmDelete('${s.id}')">YES</button>
+                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="event.stopPropagation(); window.cancelDelete()">NO</button>
+                     ` : `
+                        <button class="btn btn-pdf-export" style="padding: 4px 8px; font-size: 0.65rem; font-weight: 600; display: flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.1); color: var(--accent-primary); border: 1px solid rgba(16, 185, 129, 0.2); transition: all 0.2s ease;" onclick="event.stopPropagation(); window.exportScenarioPDF('${s.id}')" title="Export PDF Report">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            PDF
+                        </button>
+                        <button class="btn btn-danger" style="padding: 4px; line-height: 0;" onclick="event.stopPropagation(); window.initiateDelete('${s.id}')" title="Delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
+                     `}
                 </div>
             </div>
             <div class="scenario-actions">
                 <span class="scenario-date">${new Date(s.timestamp).toLocaleDateString()}</span>
-                <label class="compare-checkbox">
+                ${!isConfirming ? `
+                <label class="compare-checkbox" onclick="event.stopPropagation()">
                     <input type="checkbox" ${comparisonIds.includes(s.id) ? 'checked' : ''} onchange="window.toggleComparison('${s.id}')"> Compare
                 </label>
+                ` : ''}
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 // Drag and Drop Handlers
@@ -751,7 +765,19 @@ window.loadScenario = (id) => {
     // Close drawer on load
     document.getElementById('btn-close-portfolio')?.click();
 };
-window.deleteScenario = (id) => store.deleteScenario(id);
+window.confirmingDeleteId = null;
+window.initiateDelete = (id) => {
+    window.confirmingDeleteId = id;
+    renderScenarios();
+};
+window.cancelDelete = () => {
+    window.confirmingDeleteId = null;
+    renderScenarios();
+};
+window.confirmDelete = (id) => {
+    store.deleteScenario(id);
+    window.confirmingDeleteId = null;
+};
 window.toggleComparison = (id) => {
     store.toggleComparison(id);
     const items = store.getComparisonMetrics();
@@ -999,7 +1025,66 @@ document.addEventListener('DOMContentLoaded', () => {
             updateInputs(store.get()); // Force UI update
         });
     }
+
+    // Export Event Listeners
+    const btnExportPDF = document.getElementById('btn-export-pdf');
+
+    if (btnExportPDF) {
+        btnExportPDF.addEventListener('click', () => {
+            updatePDFMetadata();
+            window.print();
+        });
+    }
+
+    // Global helper for exporting specific scenario
+    window.exportScenarioPDF = (id) => {
+        store.loadScenario(id);
+        // Small timeout to ensure UI has updated before print dialog
+        setTimeout(() => {
+            updatePDFMetadata(id);
+            window.print();
+        }, 100);
+    };
 });
+
+function updatePDFMetadata(scenarioId = null) {
+    const state = store.get();
+    const scenarios = store.getScenarios();
+    const scenario = scenarioId ? scenarios.find(s => s.id === scenarioId) : scenarios.find(s => s.id === store.currentScenarioId);
+    
+    const titleEl = document.getElementById('pdf-report-title');
+    if (titleEl) {
+        titleEl.textContent = scenario ? scenario.name : "Investment Analysis";
+    }
+
+    // Update Metadata Fields
+    const locMap = { 1: "C-Location", 2: "C+ Location", 3: "B-Location", 4: "B+ Location", 5: "A-Location" };
+    const condMap = { 1: "Fixer-Upper", 2: "Needs Work", 3: "Standard", 4: "Modernized", 5: "New Build" };
+
+    const locEl = document.getElementById('pdf-meta-location');
+    const condEl = document.getElementById('pdf-meta-condition');
+    const priceEl = document.getElementById('pdf-meta-pricing');
+
+    if (locEl) locEl.textContent = locMap[state.locationType] || "Standard";
+    if (condEl) condEl.textContent = condMap[state.conditionType] || "Standard";
+    if (priceEl) priceEl.textContent = state.marketPricing || "Fair";
+
+    // Update Quantitative Inputs
+    const inPrice = document.getElementById('pdf-in-price');
+    const inRent = document.getElementById('pdf-in-rent');
+    const inLoan = document.getElementById('pdf-in-loan');
+    const inRate = document.getElementById('pdf-in-rate');
+
+    if (inPrice) inPrice.textContent = fmtCurrency.format(state.purchasePrice);
+    if (inRent) inRent.textContent = fmtCurrency.format(state.monthlyColdRent);
+    if (inLoan) inLoan.textContent = `${state.loanPercent}%`;
+    
+    if (inRate) {
+        const metrics = store.getMetrics();
+        const rate = state.useKfwLoan ? metrics.financing.mixedInterestRate : state.interestRatePercent;
+        inRate.textContent = `${rate.toFixed(2)}%${state.useKfwLoan ? ' (Mixed)' : ''}`;
+    }
+}
 
 function switchTab(tabId) {
     const btn = document.querySelector(`.header-tab[data-tab="${tabId}"]`);

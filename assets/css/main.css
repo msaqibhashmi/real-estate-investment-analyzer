@@ -1,3 +1,256 @@
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 8mm;
+    }
+
+    /* Hide UI elements */
+    .sidebar, .btn-portfolio, .header-tabs, .drawer-overlay, .portfolio-drawer,
+    .sidebar-action-container, .toggle-container, .btn-icon, .modal-overlay,
+    .drawer-actions, .table-header .toggle-container, #tab-comparison {
+        display: none !important;
+    }
+
+    /* Reset Layout for Print */
+    body {
+        background: white !important;
+        color: #1e293b !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .app-container, .content-wrapper, .main-content, .tab-content-container, .tab-pane {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        height: auto !important;
+        position: static !important;
+    }
+
+    .main-content {
+        padding: 0 !important;
+        height: auto !important;
+        width: 100% !important;
+    }
+
+    .tab-content-container {
+        padding: 0 !important;
+        width: 100% !important;
+        overflow: visible !important;
+    }
+
+    /* Professional Header for PDF */
+    .app-header {
+        border-bottom: 2px solid #10b981 !important;
+        margin-bottom: 10px !important;
+        padding: 0 0 5px 0 !important;
+        display: flex !important;
+        background: white !important;
+        color: #0f172a !important;
+        width: 100% !important;
+    }
+
+    .brand-logo {
+        color: #0f172a !important;
+        font-size: 1.5rem !important;
+        font-weight: 700 !important;
+    }
+
+    .brand-logo svg {
+        stroke: #10b981 !important;
+    }
+
+    /* Dashboard Grid Fix */
+    .dashboard-split {
+        display: grid !important;
+        grid-template-columns: 40% 60% !important;
+        gap: 10px !important;
+        margin-bottom: 10px !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .metrics-column, .wealth-column {
+        width: 100% !important;
+        margin-bottom: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .kpi-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 4px !important;
+        flex: 1 !important;
+    }
+
+    .kpi-card {
+        border: none !important;
+        border-left: 2px solid #10b981 !important;
+        background: #f8fafc !important;
+        padding: 4px 6px !important;
+        break-inside: avoid;
+        border-radius: 2px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important; /* Push sub-metrics to bottom */
+        min-height: 45px !important; /* Slightly more height for readability */
+    }
+
+    .kpi-label {
+        color: #64748b !important;
+        font-size: 0.5rem !important;
+        text-transform: uppercase !important;
+        font-weight: 600 !important;
+        margin-bottom: 2px !important;
+        line-height: 1 !important;
+    }
+
+    .kpi-value {
+        color: #0f172a !important;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        line-height: 1 !important;
+    }
+
+    .kpi-sub {
+        color: #94a3b8 !important;
+        font-size: 0.45rem !important;
+        border-top: 1px solid #f1f5f9 !important; /* Subtle separator */
+        margin-top: auto !important; /* Push to bottom */
+        padding-top: 2px !important;
+        line-height: 1.2 !important;
+    }
+
+    .wealth-section {
+        border: 1px solid #e2e8f0 !important;
+        padding: 6px !important; /* Compact padding */
+        border-radius: 4px !important;
+        background: #ffffff !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .wealth-row {
+        border-bottom: 1px solid #f8fafc !important;
+        padding: 2px 0 !important; /* Minimal padding */
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        line-height: 1.1 !important;
+    }
+
+    .wealth-row .label {
+        color: #64748b !important;
+        font-size: 0.65rem !important;
+    }
+
+    .wealth-row .value {
+        color: #1e293b !important;
+        font-size: 0.75rem !important;
+        font-weight: 600 !important;
+    }
+
+    .wealth-highlight {
+        background: #f0fdf4 !important;
+        border: 1px solid #dcfce7 !important;
+        border-radius: 4px !important;
+        padding: 4px 6px !important;
+        margin: 2px 0 !important;
+    }
+
+    .wealth-highlight .value {
+        color: #10b981 !important;
+        font-size: 0.9rem !important;
+    }
+
+    .wealth-highlight .label {
+        color: #065f46 !important;
+        font-weight: 700 !important;
+    }
+
+    .wealth-row[style*="padding-left: 20px"] {
+        padding-left: 10px !important;
+        opacity: 0.7 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        margin-top: 0 !important;
+        border-bottom: none !important;
+    }
+
+    .wealth-row[style*="margin-top: -8px"],
+    .wealth-row[style*="margin-top: -12px"] {
+        margin-top: 0 !important;
+    }
+
+    /* Table Fixes for Truncation */
+    .table-container {
+        margin-top: 10px !important;
+        break-before: avoid !important;
+        overflow: visible !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border: 1px solid #e2e8f0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .table-scroll-view {
+        overflow: visible !important;
+        width: 100% !important;
+    }
+
+    table {
+        width: 100% !important;
+        min-width: 100% !important;
+        table-layout: auto !important;
+        border-collapse: collapse !important;
+        font-size: 0.55rem !important;
+        line-height: 1 !important;
+    }
+
+    th {
+        background: #0f172a !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        padding: 10px 4px !important;
+        border: 1px solid #1e293b !important;
+    }
+
+    td {
+        padding: 4px 2px !important; /* Minimal padding */
+        border: 1px solid #f1f5f9 !important;
+        color: #334155 !important;
+    }
+
+    tr:nth-child(even) {
+        background: #f8fafc !important;
+    }
+
+    .text-success { color: #10b981 !important; }
+    .text-danger { color: #ef4444 !important; }
+
+    /* Ensure all rows are printed */
+    tr {
+        break-inside: avoid !important;
+    }
+
+    #pdf-metadata-header {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+
 :root {
     --bg-app: #0f172a;
     /* Slate 900 */
@@ -221,6 +474,70 @@ h4 {
 .btn-portfolio:hover {
     background: var(--accent-primary);
     color: white;
+}
+
+.btn-pdf-export:hover {
+    background: var(--accent-primary) !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.btn-pdf-export:active {
+    transform: translateY(0);
+}
+
+.scenario-item {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.2s ease,
+                margin 0.2s ease,
+                border 0.2s ease,
+                padding 0.2s ease;
+}
+
+.scenario-item.dragging {
+    opacity: 0.1;
+    border: 1px dashed var(--accent-primary) !important;
+    transform: scale(0.95);
+    box-shadow: none !important;
+}
+
+.scenario-item.drag-over {
+    border-top: 3px solid var(--accent-primary) !important;
+    padding-top: 100px !important; /* Significant space for the "ghost" card */
+    background: linear-gradient(to bottom, rgba(16, 185, 129, 0.1), transparent 80px) !important;
+    position: relative;
+}
+
+.scenario-item.drag-over::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    height: 70px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 2px dashed var(--accent-primary);
+    border-radius: var(--radius-md);
+    z-index: 1;
+    animation: pulse-ghost 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse-ghost {
+    0% { opacity: 0.3; transform: scale(0.99); }
+    50% { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 0.3; transform: scale(0.99); }
+}
+
+.btn-edit-icon:hover {
+    background: var(--bg-input) !important;
+    border-color: var(--accent-primary) !important;
+    color: var(--accent-primary) !important;
+    transform: translateY(-1px);
+}
+
+.btn-edit-icon:active {
+    transform: translateY(0);
 }
 
 /* Portfolio Drawer */

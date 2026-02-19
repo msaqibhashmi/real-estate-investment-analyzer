@@ -25,7 +25,7 @@
                     style="margin-right: 8px;">
                     <path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-9a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v9" />
                 </svg>
-                Investment Analysis
+                <span id="pdf-report-title">Investment Analysis</span>
             </div>
 
             <nav class="header-tabs">
@@ -257,6 +257,8 @@
                         style="width: 100%; padding: 8px; margin-top: 10px; font-size: 0.9rem;">
                         Save Search
                     </button>
+                    
+
                     <button id="btn-reset-form" class="btn-text" style="width: 100%; margin-top: 8px;">
                         Reset All Inputs
                     </button>
@@ -266,6 +268,44 @@
 
             <!-- Main Dashboard -->
             <main class="main-content">
+                <!-- PDF Metadata Header (Visible only in Print) -->
+                <div id="pdf-metadata-header" class="print-only" style="display: none; margin-bottom: 15px; padding: 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    <!-- Qualitative Meta -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+                        <div>
+                            <div style="font-size: 0.6rem; color: #64748b; text-transform: uppercase; font-weight: 600;">Location</div>
+                            <div id="pdf-meta-location" style="font-size: 0.8rem; font-weight: 600; color: #0f172a;">-</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.6rem; color: #64748b; text-transform: uppercase; font-weight: 600;">Condition</div>
+                            <div id="pdf-meta-condition" style="font-size: 0.8rem; font-weight: 600; color: #0f172a;">-</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.6rem; color: #64748b; text-transform: uppercase; font-weight: 600;">Market Pricing</div>
+                            <div id="pdf-meta-pricing" style="font-size: 0.8rem; font-weight: 600; color: #0f172a; text-transform: capitalize;">-</div>
+                        </div>
+                    </div>
+                    <!-- Quantitative Inputs -->
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                        <div>
+                            <div style="font-size: 0.55rem; color: #94a3b8; text-transform: uppercase;">Purchase Price</div>
+                            <div id="pdf-in-price" style="font-size: 0.75rem; font-weight: 600;">-</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.55rem; color: #94a3b8; text-transform: uppercase;">Monthly Rent</div>
+                            <div id="pdf-in-rent" style="font-size: 0.75rem; font-weight: 600;">-</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.55rem; color: #94a3b8; text-transform: uppercase;">Loan Amount</div>
+                            <div id="pdf-in-loan" style="font-size: 0.75rem; font-weight: 600;">-</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.55rem; color: #94a3b8; text-transform: uppercase;">Interest Rate</div>
+                            <div id="pdf-in-rate" style="font-size: 0.75rem; font-weight: 600;">-</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="tab-content-container">
                     <!-- Dashboard Tab -->
                     <div id="tab-dashboard" class="tab-pane active">
@@ -377,14 +417,14 @@
                                             <div style="font-size: 0.8rem; color: var(--text-secondary);" id="disp-exit-ltv">0% LTV</div>
                                         </div>
                                     </div>
-                                    <div class="wealth-row">
+                                    <div class="wealth-row wealth-highlight">
                                         <span class="label"><span class="tooltip-trigger"
                                                 data-tooltip="Tax saved due to negative taxable income.&#10;Answers: How much wage tax did I save?">Tax
                                                 Savings (Accumulated)</span>
                                         </span>
-                                        <span class="value" id="disp-tax-saved" style="font-weight: 600;">€0</span>
+                                        <span class="value" id="disp-tax-saved">€0</span>
                                     </div>
-                                    <div class="wealth-row wealth-highlight" style="border-bottom: none;">
+                                    <div class="wealth-row wealth-highlight">
                                         <span class="label"><span class="tooltip-trigger"
                                                 data-tooltip="Value - Debt.&#10;Answers: How much equity have I built from appreciation and loan paydown?">Wealth
                                                 Accumulation (Steuerfrei)</span>
@@ -399,11 +439,10 @@
                                         <span class="label" style="font-size: 0.85rem;">↳ Repayment</span>
                                         <span class="value" id="disp-wealth-repayment" style="font-size: 0.9rem; color: var(--text-secondary);">€0</span>
                                     </div>
-                                    <div class="wealth-row"
-                                        style="margin-top: auto; padding-top: 8px; border-bottom: none; padding-bottom: 0;">
+                                    <div class="wealth-row wealth-highlight"
+                                        style="margin-top: auto; border-bottom: none;">
                                         <span class="label" style="font-weight: 700;">TOTAL ECONOMIC BENEFIT</span>
-                                        <span class="value" id="disp-total-benefit"
-                                            style="font-size: 1.5rem; color: var(--accent-primary);">€0</span>
+                                        <span class="value" id="disp-total-benefit">€0</span>
                                     </div>
                                 </div>
                             </div>
@@ -487,8 +526,8 @@
             </button>
         </div>
         <div class="drawer-body">
-            <div class="drawer-actions">
-                <button id="btn-update-scenario" class="btn btn-warning" style="display: none; flex: 1;">Update
+            <div class="drawer-actions" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+                <button id="btn-update-scenario" class="btn btn-warning" style="display: none; width: 100%;">Update
                     Selected</button>
             </div>
 
