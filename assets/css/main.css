@@ -288,6 +288,148 @@
     }
 }
 
+/* --- Responsive Media Queries --- */
+@media (max-width: 1024px) {
+    .brand-logo {
+        width: auto;
+        flex: 0;
+    }
+    
+    .header-spacer {
+        flex: 1;
+    }
+
+    .dashboard-split {
+        grid-template-columns: 1fr !important;
+    }
+
+    .sidebar {
+        width: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        overflow-y: auto !important;
+        height: auto !important;
+        display: block !important;
+        position: relative !important;
+    }
+
+    .app-container {
+        height: auto !important;
+        min-height: 100vh;
+        display: block !important;
+        position: relative !important;
+    }
+
+    .content-wrapper {
+        flex-direction: column !important;
+        overflow: visible !important;
+        display: block !important;
+        height: auto !important;
+    }
+
+    .sidebar {
+        width: 100% !important;
+        height: auto !important;
+        border-right: none !important;
+        border-bottom: 1px solid var(--border);
+        overflow: visible !important;
+        flex-shrink: 0;
+        position: relative !important;
+    }
+
+    .main-content {
+        height: auto !important;
+        overflow: visible !important;
+        display: block !important;
+        flex: none !important;
+    }
+
+    .tab-content-container {
+        padding: 12px !important;
+        overflow: visible !important;
+        height: auto !important;
+    }
+
+    .app-header {
+        padding: 0 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        height: 50px;
+        width: 100% !important;
+        flex-shrink: 0 !important;
+    }
+
+    .brand-logo span {
+        display: none;
+    }
+
+    .header-tab {
+        padding: 0 12px;
+    }
+
+    .btn-portfolio span {
+        display: none;
+    }
+    
+    .btn-portfolio svg {
+        margin-right: 0 !important;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .portfolio-drawer {
+        width: 100% !important;
+    }
+
+    .dashboard-split {
+        display: block !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-tab .tab-text {
+        display: none;
+    }
+    
+    .header-tab .tab-icon {
+        display: block !important;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+    }
+
+    .input-group-row {
+        flex-direction: column !important;
+        gap: 0 !important;
+    }
+
+    .input-group-row .form-group {
+        width: 100% !important;
+        flex: none !important;
+    }
+
+    .wealth-row .value {
+        font-size: 1.1rem;
+    }
+
+    .modal-content {
+        width: 95% !important;
+        margin: 10px !important;
+    }
+
+    .brand-logo {
+        gap: 4px !important;
+    }
+}
+
 :root {
     --bg-app: #0f172a;
     /* Slate 900 */
@@ -338,6 +480,13 @@
     cursor: pointer;
     position: relative;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-tab .tab-icon {
+    display: none;
 }
 
 .header-tab:hover {
@@ -411,6 +560,10 @@ h4 {
     width: 336px;
     /* 360px sidebar - 24px header padding */
     flex-shrink: 0;
+}
+
+.header-spacer {
+    flex: 1;
 }
 
 .content-wrapper {
