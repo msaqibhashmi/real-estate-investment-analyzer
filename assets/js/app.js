@@ -531,19 +531,24 @@ function renderComparison() {
     const advisorResults = items.map(item => analyzeProperty(item.data, item.metrics));
     const comparison = items.length >= 2 ? compareProperties(items) : null;
 
-    // Headers with enhanced scoring
+    // Headers with enhanced scoring (Premium Card Design)
     head.innerHTML = `<tr>
-        <th style="width: 220px; text-align: left; padding: 20px; position: sticky; top: 0; background: var(--bg-primary); z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">Metric</th>
+        <th style="width: 240px; text-align: left; padding: 24px; position: sticky; top: 0; background: var(--bg-panel); z-index: 100; border-bottom: 2px solid var(--border);">
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 4px;">Comparison</div>
+            <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">Decision Matrix</div>
+        </th>
         ${items.map((s, i) => `
-            <th style="text-align: center; padding: 20px; border-left: 1px solid var(--border); position: sticky; top: 0; background: var(--bg-primary); z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-                <div style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 8px; font-weight: 600;">${s.name}</div>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;">
-                     <div style="font-size: 0.85rem; padding: 4px 12px; border-radius: 12px; background: ${advisorResults[i].score >= 70 ? 'rgba(16, 185, 129, 0.2)' : advisorResults[i].score >= 55 ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)'}; color: ${advisorResults[i].score >= 70 ? 'var(--accent-primary)' : advisorResults[i].score >= 55 ? '#fbbf24' : '#ef4444'}; font-weight: 600;">
-                        ${advisorResults[i].score}/100
+            <th style="text-align: center; padding: 24px; border-left: 1px solid var(--border); position: sticky; top: 0; background: var(--bg-panel); z-index: 100; border-bottom: 2px solid var(--border);">
+                <div class="comparison-card-header" style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--border); backdrop-filter: blur(10px);">
+                    <div style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 12px; font-weight: 700; font-family: var(--font-heading);">${s.name}</div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
+                         <div style="font-size: 1rem; padding: 6px 16px; border-radius: 20px; background: ${advisorResults[i].score >= 75 ? 'rgba(16, 185, 129, 0.15)' : advisorResults[i].score >= 60 ? 'rgba(251, 191, 36, 0.15)' : 'rgba(239, 68, 68, 0.15)'}; color: ${advisorResults[i].score >= 75 ? 'var(--accent-primary)' : advisorResults[i].score >= 60 ? '#fbbf24' : '#ef4444'}; font-weight: 700; border: 1px solid currentColor;">
+                            ${advisorResults[i].score}<span style="font-size: 0.7em; opacity: 0.8; margin-left: 2px;">/100</span>
+                        </div>
                     </div>
-                </div>
-                <div style="margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; justify-content: center;">
-                    ${advisorResults[i].tags.map(t => `<span style="font-size: 0.7rem; padding: 2px 6px; background: rgba(255,255,255,0.05); border-radius: 3px; color: var(--text-secondary);">${t}</span>`).join('')}
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;">
+                        ${advisorResults[i].tags.map(t => `<span style="font-size: 0.65rem; padding: 3px 8px; background: rgba(255,255,255,0.08); border-radius: 12px; color: var(--text-primary); font-weight: 500; border: 1px solid rgba(255,255,255,0.1);">${t}</span>`).join('')}
+                    </div>
                 </div>
             </th>
         `).join('')}
@@ -566,7 +571,7 @@ function renderComparison() {
                             ${rec.winnerName}
                         </div>
                         <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">
-                            Based on risk-adjusted returns (IRR 40%, DSCR 30%, Cash-on-Cash 20%, Equity Multiple 10%)
+                            Based on risk-adjusted returns (IRR 35%, DSCR 25%, Cash-on-Cash 20%, Equity Multiple 20%)
                         </div>
                     </div>
                     ${rec.reasons.length > 0 ? `
@@ -658,30 +663,29 @@ function renderComparison() {
 
     const sections = [
         {
-            title: '🛡️ Risk Assessment (Deal Breakers)',
+            title: '🛡️ Risk & Safety',
             rows: [
                 { label: 'DSCR (Debt Coverage)', key: 'initialDscr', path: 'financing', type: 'number', higherIsBetter: true },
                 { label: 'Break-even Rent', key: 'breakEvenRentMonthly', path: 'returnMetrics', higherIsBetter: false },
-                { label: 'Equity Required', key: 'equityNow', path: 'acquisition', higherIsBetter: false }
+                { label: 'LTV at Exit', key: 'exitLtv', path: 'wealth', type: 'percent', higherIsBetter: false }
             ]
         },
         {
-            title: '📈 Return Metrics (Performance)',
+            title: '📈 Performance & Wealth',
             rows: [
                 { label: 'IRR (Long-Term)', key: 'irr', path: 'returnMetrics', type: 'percent', higherIsBetter: true },
+                { label: 'Equity Multiple (MOIC)', key: 'equityMultiple', path: 'returnMetrics', type: 'number', higherIsBetter: true },
                 { label: 'Cash-on-Cash (Avg)', key: 'cashOnCashAvg', path: 'returnMetrics', type: 'percent', higherIsBetter: true },
-                { label: 'ROI (Annualized)', key: 'roiAnnualized', path: 'returnMetrics', type: 'percent', higherIsBetter: true },
-                { label: 'ROI (Total)', key: 'roiTotal', path: 'returnMetrics', type: 'percent', higherIsBetter: true },
-                { label: 'Equity Multiple', key: 'equityMultiple', path: 'returnMetrics', type: 'number', higherIsBetter: true },
-                { label: 'ROE (Avg)', key: 'roeAvg', path: 'returnMetrics', type: 'percent', higherIsBetter: true }
+                { label: 'ROE (Avg)', key: 'roeAvg', path: 'returnMetrics', type: 'percent', higherIsBetter: true },
+                { label: 'Total Economic Benefit', key: 'totalEconomicExit', path: 'wealth', higherIsBetter: true }
             ]
         },
         {
-            title: '🏘️ Market Positioning',
+            title: '🏘️ Market & Efficiency',
             rows: [
-                { label: 'Net Yield (Unleveraged)', key: 'netYield', path: 'operations', type: 'percent', higherIsBetter: true },
-                { label: 'Purchase Price', key: 'purchasePrice', path: 'inputs', higherIsBetter: false },
-                { label: 'Wealth at Exit', key: 'wealthAccumulation', path: 'wealth', higherIsBetter: true }
+                { label: 'Net Yield', key: 'netYield', path: 'operations', type: 'percent', higherIsBetter: true },
+                { label: 'Expense Ratio (OER)', key: 'expenseRatio', path: 'operations', type: 'percent', higherIsBetter: false },
+                { label: 'Equity Required', key: 'equityNow', path: 'acquisition', higherIsBetter: false }
             ]
         }
     ];

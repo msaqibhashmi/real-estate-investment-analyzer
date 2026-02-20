@@ -195,13 +195,13 @@ export function compareProperties(properties) {
     const bestEquityMultiple = equityMultiples.reduce((best, curr, idx) =>
         curr > equityMultiples[best] ? idx : best, 0);
 
-    // Determine overall winner based on weighted scoring
-    // IRR (40%), Risk/DSCR (30%), Cash-on-Cash (20%), Equity Multiple (10%)
+    // Determine overall winner based on weighted scoring (Balanced View)
+    // IRR (35%), Risk/DSCR (25%), Cash-on-Cash (20%), Equity Multiple (20%)
     const scores = analyses.map((a, idx) => {
-        const irrScore = (a.details.irr / 20) * 40; // Normalize to 40 points (20% IRR = max)
-        const dscrScore = Math.min(((a.details.dscr - 1) / 0.5) * 30, 30); // 1.5+ DSCR = max 30 points
-        const cocScore = (a.details.coc / 15) * 20; // Normalize to 20 points (15% CoC = max)
-        const emScore = (equityMultiples[idx] / 3) * 10; // Normalize to 10 points (3x = max)
+        const irrScore = Math.min((a.details.irr / 15) * 35, 35); // 15% IRR = max 35 pts
+        const dscrScore = Math.min(((a.details.dscr - 1) / 0.4) * 25, 25); // 1.4+ DSCR = max 25 pts
+        const cocScore = Math.min((a.details.coc / 10) * 20, 20); // 10% CoC = max 20 pts
+        const emScore = Math.min((equityMultiples[idx] / 2.5) * 20, 20); // 2.5x MOIC = max 20 pts
         return irrScore + dscrScore + cocScore + emScore;
     });
 
