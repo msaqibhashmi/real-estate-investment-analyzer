@@ -402,6 +402,7 @@ export function calculateMetrics(inputs) {
         wealth: {
             propertyValueExit: projectedSalePrice,
             remainingDebtExit: currentTotalBalance,
+            exitLtv: projectedSalePrice > 0 ? (currentTotalBalance / projectedSalePrice) * 100 : 0,
             wealthAccumulation,
             appreciationTotal,
             repaymentTotal,
