@@ -350,7 +350,6 @@ export function calculateMetrics(inputs) {
     const totalDebtServiceY1 = y1.interestPayment + y1.principalPayment;
     const dscr = totalDebtServiceY1 > 0 ? y1.noi / totalDebtServiceY1 : (y1.noi > 0 ? Infinity : 0);
 
-
     const pricePerSqm = sizeSqm > 0 ? purchasePrice / sizeSqm : 0;
 
     const year1DebtService = y1.interestPayment + y1.principalPayment;
@@ -362,6 +361,28 @@ export function calculateMetrics(inputs) {
         const kfwShare = kfwAmount / totalLoanAmount;
         mixedInterestRate = (bankShare * interestRatePercent) + (kfwShare * kfwInterestRate);
     }
+
+    const stressLoanAmount = purchasePrice * 0.8;
+    
+    let stressInterestRate, stressRepaymentRate;
+    if (useKfwLoan && totalLoanAmount > 0) {
+        // If KfW is used, we maintain the same KfW amount but adjust the Bank portion to reach 80% LTV
+        const stressTotalLoan = stressLoanAmount + renovationCost + furnitureCost;
+        const stressBankAmount = Math.max(0, stressTotalLoan - kfwAmount);
+        const stressKfwAmount = Math.min(stressTotalLoan, kfwAmount);
+        
+        const bankShare = stressBankAmount / stressTotalLoan;
+        const kfwShare = stressKfwAmount / stressTotalLoan;
+        
+        stressInterestRate = (bankShare * interestRatePercent + kfwShare * kfwInterestRate) / 100;
+        stressRepaymentRate = (bankShare * repaymentRatePercent + kfwShare * (kfwGracePeriod >= 1 ? 0 : kfwRepaymentRate)) / 100;
+    } else {
+        stressInterestRate = interestRatePercent / 100;
+        stressRepaymentRate = repaymentRatePercent / 100;
+    }
+    
+    const stressDebtService = (stressLoanAmount + renovationCost + furnitureCost) * (stressInterestRate + stressRepaymentRate);
+    const stressDscr = stressDebtService > 0 ? y1.noi / stressDebtService : (y1.noi > 0 ? Infinity : 0);
 
     return {
         inputs,
@@ -382,6 +403,7 @@ export function calculateMetrics(inputs) {
         financing: {
             annuity: year1DebtService,
             initialDscr: dscr,
+            stressDscr: stressDscr,
             loanAmountTotal: totalLoanAmount,
             loanAmountBank: bankLoanAmount,
             loanAmountKfw: useKfwLoan ? kfwAmount : 0,

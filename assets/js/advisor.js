@@ -6,17 +6,17 @@ export function analyzeProperty(data, metrics) {
 
     // Correct paths from finance.js structure
     const netYield = metrics.operations?.netYield || 0;
-    const initialDscr = metrics.financing?.initialDscr || 0;
-    const cashOnCashYear1 = metrics.returnMetrics?.cashOnCashYear1 || 0;
+    const initialDscr = metrics.financing?.stressDscr || 0;
+    const cashOnCashAvg = metrics.returnMetrics?.cashOnCashAvg || 0;
     const irr = metrics.returnMetrics?.irr || 0;
-    const roeYear1 = metrics.returnMetrics?.roeYear1 || 0;
+    const roeAvg = metrics.returnMetrics?.roeAvg || 0;
     const equityNow = metrics.acquisition?.equityNow || 0;
     const totalInvestment = metrics.acquisition?.totalInvestment || 0;
 
     // Core KPIs
     const yieldScore = Math.min(10, Math.max(0, (netYield - 1.5) * 2)); // 1.5% = 0, 6.5% = 10
     const dscrScore = !isFinite(initialDscr) ? 10 : Math.min(10, Math.max(0, (initialDscr - 1.0) * 10)); // 1.0 = 0, 2.0 = 10
-    const cocScore = Math.min(10, Math.max(0, cashOnCashYear1 * 1.25)); // 0% = 0, 8% = 10
+    const cocScore = Math.min(10, Math.max(0, cashOnCashAvg * 1.25)); // 0% = 0, 8% = 10
     const irrScore = Math.min(10, Math.max(0, (irr - 2) * 1.25)); // 2% = 0, 10% = 10
 
 
@@ -70,19 +70,19 @@ export function analyzeProperty(data, metrics) {
     }
 
     // CoC analysis
-    if (cashOnCashYear1 >= 8) {
+    if (cashOnCashAvg >= 8) {
         insights.push("✅ Strong positive cash flow (>8%)");
-    } else if (cashOnCashYear1 >= 3) {
+    } else if (cashOnCashAvg >= 3) {
         insights.push("👍 Moderate positive cash flow (3-8%)");
     } else {
         insights.push("⚠️ Low or negative cash flow (<3%)");
     }
 
-    // Risk assessment (DSCR)
-    if (initialDscr < 1.1) {
-        insights.push("❌ Tight debt coverage (<1.1)");
-    } else if (initialDscr >= 1.25) {
-        insights.push("✅ Strong debt coverage (>1.25)");
+    // Risk assessment (DSCR 80% LTV Stress)
+    if (initialDscr < 1.0) {
+        insights.push("❌ Tight debt coverage at 80% LTV (<1.0)");
+    } else if (initialDscr >= 1.20) {
+        insights.push("✅ Strong debt coverage at 80% LTV (>1.20)");
     }
 
     // IRR Analysis
@@ -158,10 +158,10 @@ export function analyzeProperty(data, metrics) {
             financial: Math.round(financialTotal * 10),
             quality: Math.round(qualityTotal * 10),
             yield: netYield,
-            dscr: initialDscr,
-            coc: cashOnCashYear1,
+            dscr: initialDscr, // Now using stressDscr
+            coc: cashOnCashAvg,
             irr: irr,
-            roe: roeYear1,
+            roe: roeAvg,
             equity: equityNow,
             location: locationType,
             condition: conditionType,
@@ -196,10 +196,10 @@ export function compareProperties(properties) {
         curr > equityMultiples[best] ? idx : best, 0);
 
     // Determine overall winner based on weighted scoring (Balanced View)
-    // IRR (35%), Risk/DSCR (25%), Cash-on-Cash (20%), Equity Multiple (20%)
+    // IRR (45%), Risk/DSCR (15%), Cash-on-Cash (20%), Equity Multiple (20%)
     const scores = analyses.map((a, idx) => {
-        const irrScore = Math.min((a.details.irr / 15) * 35, 35); // 15% IRR = max 35 pts
-        const dscrScore = Math.min(((a.details.dscr - 1) / 0.4) * 25, 25); // 1.4+ DSCR = max 25 pts
+        const irrScore = Math.min((a.details.irr / 15) * 45, 45); // 15% IRR = max 45 pts
+        const dscrScore = Math.min(((a.details.dscr - 1) / 0.4) * 15, 15); // 1.4+ DSCR = max 15 pts
         const cocScore = Math.min((a.details.coc / 10) * 20, 20); // 10% CoC = max 20 pts
         const emScore = Math.min((equityMultiples[idx] / 2.5) * 20, 20); // 2.5x MOIC = max 20 pts
         return irrScore + dscrScore + cocScore + emScore;
@@ -295,7 +295,7 @@ export function compareProperties(properties) {
         recommendation.reasons.push(`Best long-term return (${winner.details.irr.toFixed(1)}% IRR)`);
     }
     if (overallWinner === bestRisk) {
-        recommendation.reasons.push(`Strongest debt coverage (DSCR ${winner.details.dscr.toFixed(2)})`);
+        recommendation.reasons.push(`Strongest debt coverage (Stress DSCR ${winner.details.dscr.toFixed(2)})`);
     }
     if (overallWinner === bestCashFlow) {
         recommendation.reasons.push(`Highest annual cash flow (${winner.details.coc.toFixed(1)}% CoC)`);

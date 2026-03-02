@@ -313,6 +313,19 @@ function updateDashboard(data, metrics) {
         setText('disp-dscr', 'N/A');
     }
 
+    const stressDscr = metrics.financing.stressDscr;
+    const elStressDscr = document.getElementById('disp-dscr-stress');
+    if (elStressDscr) {
+        if (isFinite(stressDscr)) {
+            elStressDscr.textContent = stressDscr.toFixed(2) + 'x';
+            if (stressDscr >= 1.0) elStressDscr.style.color = 'var(--success)';
+            else elStressDscr.style.color = 'var(--danger)';
+        } else {
+            elStressDscr.textContent = 'N/A';
+            elStressDscr.style.color = 'var(--text-secondary)';
+        }
+    }
+
     // GER Display & Color Logic
     const ger = metrics.operations.ger;
     const elGer = document.getElementById('disp-ger');
@@ -665,7 +678,8 @@ function renderComparison() {
         {
             title: '🛡️ Risk & Safety',
             rows: [
-                { label: 'DSCR (Debt Coverage)', key: 'initialDscr', path: 'financing', type: 'number', higherIsBetter: true },
+                { label: 'DSCR (Actual)', key: 'initialDscr', path: 'financing', type: 'number', higherIsBetter: true },
+                { label: 'DSCR (80% LTV Stress)', key: 'stressDscr', path: 'financing', type: 'number', higherIsBetter: true },
                 { label: 'Break-even Rent', key: 'breakEvenRentMonthly', path: 'returnMetrics', higherIsBetter: false },
                 { label: 'LTV at Exit', key: 'exitLtv', path: 'wealth', type: 'percent', higherIsBetter: false }
             ]
